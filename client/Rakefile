@@ -1,0 +1,17 @@
+task(:default) do
+  exec 'shotgun -rrubygems -rinit -p 4567 -s thin'
+end
+
+namespace(:db) do
+  desc "Migrate the database"
+  task(:migrate) do
+    require 'init'
+
+    DB.create_table(:bots) do
+      primary_key :id
+      String :name, :unique => true, :null => false
+      String :password, :null => false
+      Text :code
+    end
+  end
+end

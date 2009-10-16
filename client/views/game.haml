@@ -1,0 +1,62 @@
+:style
+  #container
+    :background-color grey
+    :position relative
+    :overflow hidden
+  #map
+    :background green
+    :position absolute
+    :width 1000px
+    :top -100px
+    :left -100px
+    :height 1000px
+    :background url('/28hzc6b.png')
+
+:script
+  $(document).ready(function(){
+    var container = $('#container'),
+        map = $('#map');
+    
+    function constrain(num, lower, upper) {
+      if(num < lower){
+        return lower;
+      } else if(num > upper) {
+        return upper;
+      } else {
+        return num;
+      };
+    }
+    
+    
+    var drag = {
+      on: false,
+      pos: {x: 0, y: 0},
+      start: {x: 0, y: 0}
+    };
+    
+    map.mousedown(function(e){
+      drag.on = true;
+      drag.pos = {x: parseFloat(map.css('left')), y: parseFloat(map.css('top'))};
+      drag.start = {x: e.clientX, y: e.clientY};
+      console.log(drag);
+      
+    });
+    map.mouseup(function(){ drag.on = false; });
+    
+    map.mousemove(function(e){
+      if(drag.on) {
+        var x = constrain(drag.pos.x-(drag.start.x-e.clientX), window.innerWidth-map.width(), 0),
+            y = constrain(drag.pos.y-(drag.start.y-e.clientY), window.innerHeight-map.height(), 0)
+        map.css({top: y, left: x});
+      }
+    })
+    
+    $(window).resize(function(){
+      container.css({width: this.innerWidth, height: this.innerHeight});
+    }).resize();
+    
+    
+  });
+
+#container
+  #map
