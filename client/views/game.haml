@@ -1,20 +1,36 @@
 :style
   #container
     :background-color grey
-    :position relative
-    :overflow hidden
-  #map
-    :background green
     :position absolute
-    :width 1000px
-    :top -100px
-    :left -100px
-    :height 1000px
-    :background url('/28hzc6b.png')
+    :top 0
+    :right 0
+    :bottom 0
+    :left 0
+    :overflow hidden
+  #overlay
+    // :background #000
+    // :opacity 0.5
+    :z-index 99
+    :position absolute
+    :width 100%
+    :height 100%
+    :cursor url('http://maps.gstatic.com/intl/en_ALL/mapfiles/openhand_8_8.cur'), default
+    &.dragging
+      :cursor url('http://maps.gstatic.com/intl/en_ALL/mapfiles/closedhand_8_8.cur'), default
+    
+    *
+      :-webkit-user-select none
+      :-webkit-user-drag none
+    
+  #map
+    :position absolute
+    img
+      :float left
 
 :script
   $(document).ready(function(){
     var container = $('#container'),
+        overlay = $('#overlay'),
         map = $('#map');
     
     function constrain(num, lower, upper) {
@@ -27,6 +43,19 @@
       };
     }
     
+    $.getJSON('/map.json', function(_map){
+      map.css('width', _map.width * _map.scale);
+      map.css('height', _map.height * _map.scale);
+      
+      map.css('top', -(_map.height * _map.scale / 2));
+      map.css('left', -(_map.width * _map.scale / 2));
+      
+      for(var i in _map.data) {
+        var tile = $('<img />').attr('src', _map.key[_map.data[i]]);
+        map.append(tile);
+      }
+      
+    });
     
     var drag = {
       on: false,
@@ -34,29 +63,29 @@
       start: {x: 0, y: 0}
     };
     
-    map.mousedown(function(e){
+    overlay.mousedown(function(e){
       drag.on = true;
       drag.pos = {x: parseFloat(map.css('left')), y: parseFloat(map.css('top'))};
       drag.start = {x: e.clientX, y: e.clientY};
-      console.log(drag);
-      
     });
-    map.mouseup(function(){ drag.on = false; });
-    
-    map.mousemove(function(e){
+    $(document).mouseup(function(){
       if(drag.on) {
+        drag.on = false; overlay.removeClass('dragging');
+      }
+    });
+    
+    $(document).mousemove(function(e){
+      if(drag.on) {
+        overlay.addClass('dragging');
         var x = constrain(drag.pos.x-(drag.start.x-e.clientX), window.innerWidth-map.width(), 0),
             y = constrain(drag.pos.y-(drag.start.y-e.clientY), window.innerHeight-map.height(), 0)
         map.css({top: y, left: x});
       }
     })
     
-    $(window).resize(function(){
-      container.css({width: this.innerWidth, height: this.innerHeight});
-    }).resize();
-    
-    
   });
 
 #container
-  #map
+  #overlay
+    #map
+    
