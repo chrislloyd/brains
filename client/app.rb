@@ -22,7 +22,7 @@ get '/map.json' do
       'a' => '/images/a.gif',
       'b' => '/images/b.gif'
     },
-    :data => Array.new(100*100){ ['a','b'][rand(2)] }
+    :raw => Array.new(100*100){ ['a','b'][rand(2)] }
   })
 end
 

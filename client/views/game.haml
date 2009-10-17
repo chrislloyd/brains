@@ -28,6 +28,11 @@
       :float left
 
 :script
+  $$ = function(elem, methods) {
+    if (methods) $(elem).data("controller", methods);
+    return $(elem).data("controller");
+  }
+  
   $(document).ready(function(){
     var container = $('#container'),
         overlay = $('#overlay'),
@@ -43,18 +48,36 @@
       };
     }
     
-    $.getJSON('/map.json', function(_map){
-      map.css('width', _map.width * _map.scale);
-      map.css('height', _map.height * _map.scale);
+    $$(map, {
+      show: function() {
+        var width = map.data('width') * map.data('scale'),
+            height = map.data('height') * map.data('scale');
+        
+        map.css('width', width);
+        map.css('height', height);
+        
+        map.css('top', -(width / 2));
+        map.css('left', -(height / 2));
+        
+        for(var i in map.data('raw')) {
+          var tile = $('<img />').attr('src', map.data('key')[map.data('raw')[i]]);
+          map.append(tile);
+        }
+      },
       
-      map.css('top', -(_map.height * _map.scale / 2));
-      map.css('left', -(_map.width * _map.scale / 2));
-      
-      for(var i in _map.data) {
-        var tile = $('<img />').attr('src', _map.key[_map.data[i]]);
-        map.append(tile);
+      move: function(x, y) {
+        map.css({top: y, left: x});        
       }
-      
+    });
+    
+    
+    
+    
+    $.getJSON('/map.json', function(attrs){
+      for(var key in attrs) {
+        map.data(key, attrs[key]);
+      }
+      $$(map).show();      
     });
     
     var drag = {
@@ -79,7 +102,7 @@
         overlay.addClass('dragging');
         var x = constrain(drag.pos.x-(drag.start.x-e.clientX), window.innerWidth-map.width(), 0),
             y = constrain(drag.pos.y-(drag.start.y-e.clientY), window.innerHeight-map.height(), 0)
-        map.css({top: y, left: x});
+        $$(map).move(x,y);
       }
     })
     
