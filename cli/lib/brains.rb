@@ -68,6 +68,7 @@ module Brains
           f.write brain_template
         end
         brains << brain
+        system "#{ENV['EDITOR']} #{brain}"
       end
     end
 
