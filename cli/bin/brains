@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+require 'brains'
+
+user = Brains::User.from_disk_or_new
+
+case ARGV.first
+when 'new'
+  user.add_brain(ARGV[1]) if ARGV[1]
+when 'push'
+  user.push
+when 'sync'
+  user.sync
+else
+  puts 'usage: brain new|push|sync <filename>'
+end
+
+user.save
