@@ -9,15 +9,19 @@ module Actor
   def self.included(actor); actor.extend(ClassMethods); end
 
   module ClassMethods
-    def costs(costs=nil)
-      costs.nil? ? @costs : @costs = costs
-    end
     def damage_from(sources)
       sources.each do |source, amount|
-        define_method("takes_damage_from_#{source}") do
-          self.health -= amount
-        end
+        define_method("takes_damage_from_#{source}"){ hurt(amount) }
+      end
     end
+
+    def valid_accessor(attr)
+      attr_accessor attr
+      define_method("#{attr}=") do |val|
+        yield(val) ? send("#{attr}=", val) : raise ArgumentError
+      end
+    end
+
   end
 
 
@@ -50,10 +54,7 @@ end
 class Player
   include Actor
 
-  # Time in ms
-  costs :turning,  :energy => 20, :time => 50
-  costs :moving,   :energy => 40, :time => 150
-  costs :shooting, :energy => 70, :time => 100
+
 
   damage_from :zombie => 20,
               :bullet => 50
@@ -61,8 +62,13 @@ class Player
 
   attr_accessor :brain
   attr_accessor :state, :x, :y, :dir, :health
-
-  attr_accessor :locked_until
+  
+  
+  valid_accessor :dir {|dir| (-1..1).include?(dir)}
+  valid_accessor :x {|x| (0..1).include?(x)}
+  valid_accessor :y {|y| (0..1).include?(y)}
+  valid_accessor :state {|y| %w().include?(y)}
+  
 
   def self.new_with_brain(brain)
     returning(new) {|p| p.brain = brain}
@@ -76,16 +82,6 @@ class Player
 
   def receive(json)
     # {:locked_until => 21312124}
-  end
-
-  def lock!(ms)
-    self.locked_until = Time.now.to_f + (ms.to_f/1000)
-  end
-
-  class LockedError < RuntimeError; end
-
-  def locked?
-    Time.now.to_f < locked_until
   end
 
   def turn(cw=nil)
