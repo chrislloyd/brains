@@ -1,4 +1,4 @@
-module Brains::States
+module States
 
   def self.included(obj)
     obj.extend(ClassMethods)

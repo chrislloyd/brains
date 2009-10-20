@@ -2,22 +2,25 @@ $:.push 'lib'
 
 require 'brains'
 
+require 'redis'
 
-h = Brains::Human.new_with_brain('localhost:4567')
+$r = Redis.new
+$r.flush_db
 
-puts h.to_json
+$world = World.new
+
+h = $world.connect_human('localhost:4567')
 
 loop do
 
-  env = {:visible => []}
-
   puts '-> thinking'
 
-  h.think(env)
+  $world.update
 
-  puts h.to_json
-  sleep 0.5
+  $world.save
+
+  $r.keys('*').each {|k| puts $r[k]}
+
+  puts $world.actors.to_json
+  sleep 0.2
 end
-
-
-

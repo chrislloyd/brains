@@ -1,4 +1,4 @@
-module Brains::Energy
+module Energy
   attr_accessor :energy
 
   class NoEnergy < RuntimeError; end
@@ -8,7 +8,7 @@ module Brains::Energy
   end
 end
 
-module Brains::Mortality
+module Mortality
   attr_accessor :health
 
   def hurt(amount)
@@ -17,12 +17,14 @@ module Brains::Mortality
 end
 
 
-class Brains::Actor
-  include Brains::States
-  include Brains::Energy
-  include Brains::Mortality
+class Actor
+  include States
+  include Energy
+  include Mortality
 
   N_DIRECTIONS = 8
+
+  class_inheritable_accessor :world
 
   attr_accessor :x, :y, :dir
 
@@ -41,13 +43,10 @@ class Brains::Actor
 
   # Needs to be in a transaction
   def move(x,y)
-    validate(x) {|x| (-1..1).include?(x)}
-    validate(y) {|y| (-1..1).include?(y)}
+    validate(x) {|x| [-1,1].include?(x)}
+    validate(y) {|y| [-1,1].include?(y)}
 
-    # TODO Actually move
-    self.x += x
-    self.y += y
-
+    $world.try_to_place(self, x, y)
 
     changes :from => being_alive, :to => :moving
   end
@@ -57,7 +56,7 @@ class Brains::Actor
   end
 
   def turn(deg)
-    validate(deg) {|deg| (-1..1).include?(deg) }
+    validate(deg) {|deg| [-1,1].include?(deg) }
 
     self.dir = (self.dir + deg) % N_DIRECTIONS
     changes :from => being_alive, :to => :turning
@@ -78,8 +77,14 @@ class Brains::Actor
     [:idle, :moving, :turning, :attacking]
   end
 
+  # TODO Add error collection so we can send it back to the client
   def validate(arg)
     raise ArgumentError unless yield(arg)
+  end
+
+  # TODO Fix hack!
+  def id
+    @id ||= rand(10000000)
   end
 
 end

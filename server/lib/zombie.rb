@@ -1,4 +1,4 @@
-class Brains::Zombie < Brains::Actor
+class Zombie < Actor
 
   def turn_cw_or_ccw(deg)
     diff = (deg - self.deg)
@@ -22,7 +22,7 @@ class Brains::Zombie < Brains::Actor
 
   def find_target!(actors)
     self.target ||= actors.
-      reject {|a| a.is_a?(Brains::Zombie)}.
+      reject {|a| a.is_a?(Zombie)}.
       sort_by {|h| self.distance_to(h) }.
       first
   end

@@ -1,7 +1,7 @@
 require 'rest_client'
 require 'transaction/simple'
 
-class Brains::Human < Brains::Actor
+class Human < Actor
   include Transaction::Simple
 
   BRAIN_TIMEOUT = 1
@@ -15,17 +15,28 @@ class Brains::Human < Brains::Actor
     end
   end
 
+  # TODO Inherit
   class BrainConnectionError < RuntimeError; end
 
+  # TODO Rename
+  def send_request(env)
+    RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+  rescue RestClient::Exception
+    raise BrainConectionError
+  end
+
   def think(env)
+    # This is all fucked
     start_transaction
     begin
-      response = RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
-      puts "-> response: #{response}"
+      response = send_request(env)
       update! JSON.parse(response)
       self.errors = 0
       commit_transaction
-    rescue # TODO Make this explicit
+    rescue Exception => e # TODO Make this explicit
+      puts e
+      puts e.backtrace
+
       abort_transaction
       self.errors += 1
       raise BrainConnectionError if self.errors >= 3
@@ -49,7 +60,7 @@ class Brains::Human < Brains::Actor
   end
 
   def to_json
-    {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir}.to_json
+    {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir, :errors => self.errors}.to_json
   end
 
 # private
