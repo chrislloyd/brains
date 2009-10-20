@@ -8,15 +8,20 @@ helpers do
   end
 
   def random_direction
-    (-1 + rand(3))
+    # (-1 + rand(3))
+    2
   end
 
   def random_movement
-    (-1 + rand(3))
+    # (-1 + rand(3))
+    2
   end
 end
 
 post '/' do
+
+  puts params
+
   moves = [
     {:action => 'turn', :direction => random_direction},
     {:action => 'move', :x => random_movement, :y => random_movement}

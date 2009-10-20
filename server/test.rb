@@ -16,7 +16,7 @@ loop do
   h.think(env)
 
   puts h.to_json
-
+  sleep 0.5
 end
 
 

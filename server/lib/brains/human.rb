@@ -1,6 +1,8 @@
 require 'rest_client'
+require 'transaction/simple'
 
 class Brains::Human < Brains::Actor
+  include Transaction::Simple
 
   BRAIN_TIMEOUT = 1
   VALID_ACTIONS = %w(idle move attack turn)
@@ -13,15 +15,22 @@ class Brains::Human < Brains::Actor
     end
   end
 
+  class BrainConnectionError < RuntimeError; end
+
   def think(env)
-    response = RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
-    puts "-> response: #{response}"
-    update! JSON.parse(response)
-    self.errors = 0
-  # rescue Exception => e
-  #   puts e
-  #   self.errors += 1
-  #   rest!
+    start_transaction
+    begin
+      response = RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+      puts "-> response: #{response}"
+      update! JSON.parse(response)
+      self.errors = 0
+      commit_transaction
+    rescue # TODO Make this explicit
+      abort_transaction
+      self.errors += 1
+      raise BrainConnectionError if self.errors >= 3
+      rest!
+    end
   end
 
   def update!(cmd)
