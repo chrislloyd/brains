@@ -1,12 +1,19 @@
-class Brains::Zombie
-  include Brains::Actor
+class Brains::Zombie < Brains::Actor
+
+  def turn_cw_or_ccw(deg)
+    diff = (deg - self.deg)
+    diff / diff
+  end
 
   def think(env)
-    find_target! env[:visible]
+    find_target! env['visible']
 
     # Turn around to target first (as attacks are directed)
     # Then start moving
 
+    unless target
+      rest!
+    end
   end
 
 # private

@@ -1,24 +1,27 @@
-class Brains::Human
-  include Brains::Actor
+require 'rest_client'
 
-  BRAIN_TIMEOUT = 0.5
+class Brains::Human < Brains::Actor
+
+  BRAIN_TIMEOUT = 1
   VALID_ACTIONS = %w(idle move attack turn)
 
   attr_accessor :brain
 
-  def new_with_brain(brain)
+  def self.new_with_brain(brain)
     returning(new) do |h|
       h.brain = brain
     end
   end
 
   def think(env)
-    response = RestClient.post brain, 'payload', :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+    response = RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+    puts "-> response: #{response}"
     update! JSON.parse(response)
     self.errors = 0
-  rescue
-    self.errors += 1
-    rest!
+  # rescue Exception => e
+  #   puts e
+  #   self.errors += 1
+  #   rest!
   end
 
   def update!(cmd)
@@ -32,8 +35,12 @@ class Brains::Human
     when 'attack'
       attack!
     when 'turn'
-      move(cmd['deg'])
+      turn(cmd['direction'])
     end
+  end
+
+  def to_json
+    {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir}.to_json
   end
 
 # private

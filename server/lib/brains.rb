@@ -11,5 +11,4 @@ module Brains
   load lib_path/'actor.rb'
   load lib_path/'zombie.rb'
   load lib_path/'human.rb'
-
 end

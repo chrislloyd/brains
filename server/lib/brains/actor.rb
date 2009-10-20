@@ -17,10 +17,12 @@ module Brains::Mortality
 end
 
 
-module Brains::Actor
+class Brains::Actor
   include Brains::States
   include Brains::Energy
   include Brains::Mortality
+
+  N_DIRECTIONS = 8
 
   attr_accessor :x, :y, :dir
 
@@ -28,6 +30,9 @@ module Brains::Actor
 
   def initialize
     self.state = :idle
+
+    # TODO Initialize properly
+    self.x, self.y, self.dir = 0, 0, 0
   end
 
   def rest!
@@ -39,8 +44,12 @@ module Brains::Actor
     validate(x) {|x| (-1..1).include?(x)}
     validate(y) {|y| (-1..1).include?(y)}
 
-    # Move
-    changes :from => being_alive, :to => :walking
+    # TODO Actually move
+    self.x += x
+    self.y += y
+
+
+    changes :from => being_alive, :to => :moving
   end
 
   def attack!
@@ -50,7 +59,7 @@ module Brains::Actor
   def turn(deg)
     validate(deg) {|deg| (-1..1).include?(deg) }
 
-    self.dir += deg
+    self.dir = (self.dir + deg) % N_DIRECTIONS
     changes :from => being_alive, :to => :turning
   end
 

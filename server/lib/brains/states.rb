@@ -7,13 +7,11 @@ module Brains::States
   module ClassMethods
 
     def states(*states)
-      unless states.empty?
-        @all_states = states
-        states.each do |s|
-          define_method("#{s}?") {state == s}
-        end
+      unless states
+        @states
       else
-        @all_states
+        @states = states
+        states.each {|s| define_method("#{s}?") {state == s}}
       end
     end
 
@@ -28,7 +26,7 @@ module Brains::States
   end
 
   def changes(opts)
-    unless opts[:from].include?(self.state) && any_state.include?(opts[:to])
+    unless opts[:from].include?(self.state) || any_state.include?(opts[:to])
       raise InvalidTransition
     end
     self.state = opts[:to]
