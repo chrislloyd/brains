@@ -7,7 +7,7 @@ helpers do
     obj.to_json
   end
 
-  def rand_val; [-1,1][rand(2)] end
+  def rand_val; [-1,1,1][rand(3)] end
 
 end
 

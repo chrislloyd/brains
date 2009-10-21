@@ -42,11 +42,11 @@ class Actor
   end
 
   # Needs to be in a transaction
-  def move(x,y)
-    validate(x) {|x| [-1,1].include?(x)}
-    validate(y) {|y| [-1,1].include?(y)}
+  def move(dx,dy)
+    validate(dx) {|x| [-1,1].include?(x)}
+    validate(dy) {|y| [-1,1].include?(y)}
 
-    $world.try_to_place(self, x, y)
+    $world.try_to_place(self, x+dx, y+dy)
 
     changes :from => being_alive, :to => :moving
   end

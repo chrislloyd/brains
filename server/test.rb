@@ -22,5 +22,5 @@ loop do
   $r.keys('*').each {|k| puts $r[k]}
 
   puts $world.actors.to_json
-  sleep 0.2
+  sleep 0.05
 end
