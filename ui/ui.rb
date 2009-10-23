@@ -25,8 +25,6 @@ class Actor
     update(raw)
   end
 
-
-
   def update(raw)
     data = JSON.parse(raw)
     self.x, self.y, self.dir = data['x'], data['y'], data['dir']

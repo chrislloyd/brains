@@ -44,6 +44,10 @@ class Human < Actor
     end
   end
 
+  def validate_response(r)
+    validate(r['cmd']) {|cmd| VALID_ACTIONS.include?(cmd)}
+  end
+
   def update!(cmd)
     validate(cmd) {|cmd| VALID_ACTIONS.include?(cmd['action']) }
 
