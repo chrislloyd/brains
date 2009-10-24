@@ -1,10 +1,7 @@
 require 'rest_client'
-require 'transaction/simple'
 
 class Human < Actor
-  include Transaction::Simple
 
-  BRAIN_TIMEOUT = 1
   VALID_ACTIONS = %w(idle move attack turn)
 
   attr_accessor :brain
@@ -14,43 +11,37 @@ class Human < Actor
       h.brain = brain
     end
   end
-
-  # TODO Inherit
-  class BrainConnectionError < RuntimeError; end
+  
+  BRAIN_TIMEOUT = 0.5
 
   # TODO Rename
   def send_request(env)
     RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
-  rescue RestClient::Exception
-    raise BrainConectionError
   end
 
   def think(env)
-    # This is all fucked
-    start_transaction
-    begin
-      response = send_request(env)
-      update! JSON.parse(response)
-      self.errors = 0
-      commit_transaction
-    rescue Exception => e # TODO Make this explicit
-      puts e
-      puts e.backtrace
-
-      abort_transaction
-      self.errors += 1
-      raise BrainConnectionError if self.errors >= 3
-      rest!
-    end
+    response = normalize_response(send_request(env))
+    update! response
+  rescue RestClient::Exception, ArgumentError
+    rest!
+  end
+  
+  MAX_RESPONSE_LENGTH = 256
+  
+  def normalize_response(response)
+    raise ArgumentError if response.length < MAX_RESPONSE_LENGTH
+    
+    validate_response JSON.parse(response)
   end
 
-  def validate_response(r)
+  def validate_response(json)
     validate(r['cmd']) {|cmd| VALID_ACTIONS.include?(cmd)}
+    validate(r['x']) {|x| x && (-1..1).include?(x)}
+    validate(r['y']) {|y| y && (-1..1).include?(y)}
+    validate(r['dir']) {|dir| dir && dir.is_a?(Numeric)}
   end
 
   def update!(cmd)
-    validate(cmd) {|cmd| VALID_ACTIONS.include?(cmd['action']) }
-
     case cmd['action']
     when 'idle'
       rest!
@@ -61,18 +52,6 @@ class Human < Actor
     when 'turn'
       turn(cmd['direction'])
     end
-  end
-
-  def to_json
-    {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir, :errors => self.errors}.to_json
-  end
-
-# private
-
-  attr_writer :errors
-
-  def errors
-    @errors || 0
   end
 
 end

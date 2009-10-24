@@ -43,8 +43,8 @@ class Actor
 
   # Needs to be in a transaction
   def move(dx,dy)
-    validate(dx) {|x| [-1,1].include?(x)}
-    validate(dy) {|y| [-1,1].include?(y)}
+    validate(dx) {|x| (-1..1).include?(x)}
+    validate(dy) {|y| (-1..1).include?(y)}
 
     $world.try_to_place(self, x+dx, y+dy)
 
@@ -56,9 +56,9 @@ class Actor
   end
 
   def turn(deg)
-    validate(deg) {|deg| [-1,1].include?(deg) }
+    validate(deg) {|deg| deg.is_a?(Numeric)}
 
-    self.dir = (self.dir + deg) % N_DIRECTIONS
+    self.dir = deg
     changes :from => being_alive, :to => :turning
   end
 
@@ -80,6 +80,10 @@ class Actor
   # TODO Add error collection so we can send it back to the client
   def validate(arg)
     raise ArgumentError unless yield(arg)
+  end
+
+  def to_hash
+    {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir, :type => self.class.name.downcase}
   end
 
   # TODO Fix hack!

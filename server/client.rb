@@ -12,5 +12,9 @@ helpers do
 end
 
 post '/' do
-  json :action => 'idle'
+  moves = [
+    {:action => 'turn', :direction => rand_val},
+    {:action => 'move', :x => rand_val, :y => rand_val}
+  ]
+  json moves[rand(moves.size)]
 end

@@ -1,37 +1,69 @@
 class World
 
   attr_accessor :width, :height, :actors
-
-  def initialize
+  
+  def initialize(width = 200, height = 200)
+    self.width, self.height = width, height
     self.actors = []
   end
 
   def zombies
-    self.actors.select {|a| a.is_a?(Zombie)}
+    actors.select {|a| a.is_a?(Zombie)}
   end
 
   def humans
-    self.actors.select {|a| a.is_a?(Human)}
+    actors.select {|a| a.is_a?(Human)}
+  end
+  
+  def add(actor)
+    actors << actor
+    place(actor)
   end
 
   class SteppingOnToesError < RuntimeError; end
 
   def try_to_place(actor, x, y)
-    if self.actors.detect {|a| a != actor && a.x == x && a.y == y}
+    if actors.detect {|a| a != actor && a.x == x && a.y == y}
       raise SteppingOnToesError
     else
       actor.x, actor.y = x, y
     end
   end
 
-  def connect_human(addr)
-    h = Human.new_with_brain(addr)
-    actors << h
-    h
+  def place(actor)
+    x, y = case actor
+    when Zombie
+      place_zombie(actor)
+    when Human
+      place_human(actor)
+    end
+    try_to_place actor, x, y
+    actor
+  rescue SteppingOnToesError
+    retry
   end
-
+  
+  def place_zombie(actor)
+    x = rand(0, width + 1)
+    y = height + 1
+    [x, y]
+  end
+  
+  def place_human(actor)
+    x_variance = self.width * 0.1
+    x = rand(-x_variance, x_variance) + self.width / 2
+    y_variance = self.height * 0.1
+    y = rand(-y_variance, y_variance) + self.height / 2
+    [x, y]
+  end
+  
   def current_environment_for(actor)
-    {}
+    case actor
+    when Zombie
+      {'visible' => humans}
+    when Human
+      {}
+    end
   end
 
   def update
@@ -42,7 +74,7 @@ class World
 
   def save
     actors.each do |a|
-      $r[a.id] = a.to_json
+      db[a.id] = a.to_hash.to_json
     end
   end
 

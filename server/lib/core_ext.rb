@@ -16,8 +16,18 @@ class Array
   end
 end
 
+class Numeric
+  def to_deg
+    self * (180 / Math::PI)
+  end
+end
+
 
 def returning(obj)
   yield(obj)
   obj
+end
+
+def rand(start, limit = nil)
+  limit ? start + super(limit - start) : super(start)
 end
