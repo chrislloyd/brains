@@ -26,14 +26,13 @@ class Actor
   end
 
   def update(data)
+    # p data
     self.x, self.y, self.dir = data['x'], data['y'], data['dir']
     self.stale = false
   end
 
   def draw
-    puts x*window.grid
-    puts y*window.grid
-    image.draw_rot(x*window.grid, window.height - y*window.grid, 1, dir)
+    image.draw_rot(x*window.grid, window.height - y*window.grid, 1, self.dir || 0)
     self.stale = true
   end
 
@@ -50,7 +49,7 @@ class Window < Gosu::Window
   attr_accessor :grid, :actors
 
   def initialize
-    self.grid = 5
+    self.grid = 1
     super(640, 480, false)
 
     self.caption = 'Brains'

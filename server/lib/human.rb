@@ -52,7 +52,7 @@ class Human < Actor
     when 'attack'
       attack!
     when 'turn'
-      turn(cmd['direction'])
+      turn(cmd['dir'])
     end
     
   rescue World::SteppingOnToesError

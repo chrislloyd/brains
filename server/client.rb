@@ -13,10 +13,9 @@ end
 
 post '/' do
   moves = [
-    {:action => 'turn', :dir => rand_val},
+    {:action => 'turn', :dir => rand(360)},
     {:action => 'move', :x => rand_val, :y => rand_val}
   ]
-  action = moves[rand(moves.size)]
-  p action
-  json action
+  
+  json moves[rand(moves.size)]
 end
