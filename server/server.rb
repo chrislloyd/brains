@@ -9,7 +9,7 @@ def db
 end
 db.flush_db
 
-$world = World.new(100,100)
+$world = World.new(640,480)
 
 10.times do 
   $world.add(Zombie.new)
@@ -19,14 +19,14 @@ h = $world.add(Human.new_with_brain('localhost:4567'))
 
 loop do
 
-  puts '-> thinking'
+  # puts '-> thinking'
 
   $world.update
 
   $world.save
 
-  db.keys('*').each {|k| puts db[k]}
+  # db.keys('*').each {|k| puts db[k]}
   
-  puts $world.actors.to_json
-  sleep 0.5
+  # puts $world.actors.to_json
+  sleep 1/30.0
 end

@@ -56,8 +56,6 @@ class Actor
   end
 
   def turn(deg)
-    validate(deg) {|deg| deg.is_a?(Numeric)}
-
     self.dir = deg
     changes :from => being_alive, :to => :turning
   end
@@ -79,7 +77,7 @@ class Actor
 
   # TODO Add error collection so we can send it back to the client
   def validate(arg)
-    raise ArgumentError unless yield(arg)
+    raise ArgumentError(arg) unless yield(arg)
   end
 
   def to_hash
