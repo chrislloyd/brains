@@ -4,7 +4,7 @@ class Zombie < Actor
     self.target ||= find_target(env['visible'])
     
     direction = direction_to(target)
-    if (direction - self.dir).abs < 45
+    if (direction - self.dir).abs < 5
       x = Math.sin(direction).round
       y = Math.cos(direction).round
       move(x, y)

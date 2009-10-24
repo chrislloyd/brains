@@ -54,6 +54,8 @@ class Human < Actor
     when 'turn'
       turn(cmd['direction'])
     end
+    
+  rescue World::SteppingOnToesError
   end
 
 end
