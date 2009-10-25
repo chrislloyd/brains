@@ -15,7 +15,7 @@ class Human < Actor
   BRAIN_TIMEOUT = 0.5
 
   def send_request(env)
-    RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+    RestClient.post brain, :env => env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
   end
 
   def think(env)

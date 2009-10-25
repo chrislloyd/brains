@@ -31,12 +31,4 @@ class Zombie < Actor
       sort_by {|h| self.distance_to(h)}.
       first
   end
-
-  def direction_to(actor)
-    dx = x - actor.x
-    dy = y - actor.y
-
-    (Math.atan2(dx, dy).to_deg + 180) % 360
-  end
-
 end

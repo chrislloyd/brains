@@ -82,6 +82,17 @@ class Actor
   def id
     @id ||= rand(10000000)
   end
+  
+  def direction_to(actor)
+    dx = x - actor.x
+    dy = y - actor.y
+
+    (Math.atan2(dx, dy).to_deg + 180) % 360
+  end
+  
+  def can_see(actor)
+    (direction_to(actor) - self.dir).abs < 45
+  end
 
 end
 

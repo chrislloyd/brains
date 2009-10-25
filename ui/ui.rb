@@ -26,7 +26,6 @@ class Actor
   end
 
   def update(data)
-    # p data
     self.x, self.y, self.dir = data['x'], data['y'], data['dir']
     self.stale = false
   end

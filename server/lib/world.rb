@@ -64,8 +64,8 @@ class World
     when Human
       {:x => actor.x,
        :y => actor.y,
-       :dir => actor.dir
-      }
+       :dir => actor.dir,
+       :visible => actors.select { |a| actor.can_see(a) }.collect { |a| a.to_hash } }
     end
   end
 
