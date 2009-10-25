@@ -1,7 +1,7 @@
 class World
 
   attr_accessor :width, :height, :actors
-  
+
   def initialize(width = 200, height = 200)
     self.width, self.height = width, height
     self.actors = []
@@ -14,7 +14,7 @@ class World
   def humans
     actors.select {|a| a.is_a?(Human)}
   end
-  
+
   def add(actor)
     actors << actor
     place(actor)
@@ -42,13 +42,13 @@ class World
   rescue SteppingOnToesError
     retry
   end
-  
+
   def place_zombie(actor)
     x = rand(0, width + 1)
     y = height + 1
     [x, y]
   end
-  
+
   def place_human(actor)
     x_variance = self.width * 0.1
     x = rand(-x_variance, x_variance) + self.width / 2
@@ -56,14 +56,26 @@ class World
     y = rand(-y_variance, y_variance) + self.height / 2
     [x, y]
   end
-  
+
   def current_environment_for(actor)
     case actor
     when Zombie
-      {'visible' => humans}
+      {:visible => humans}
     when Human
-      {}
+      {:x => actor.x,
+       :y => actor.y,
+       :dir => actor.dir
+      }
     end
+  end
+
+  def bite(zombie)
+    humans.select {|h| zombie.distance_to(h) <= 5 }.each do |h|
+      h.hurt(30)
+    end
+  end
+
+  def shoot(human)
   end
 
   def update

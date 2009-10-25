@@ -11,10 +11,9 @@ class Human < Actor
       h.brain = brain
     end
   end
-  
+
   BRAIN_TIMEOUT = 0.5
 
-  # TODO Rename
   def send_request(env)
     RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
   end
@@ -25,17 +24,16 @@ class Human < Actor
   # rescue RestClient::Exception, ArgumentError
     # rest!
   end
-  
+
   MAX_RESPONSE_LENGTH = 256
-  
+
   def normalize_response(response)
     raise ArgumentError if response.length > MAX_RESPONSE_LENGTH
-    
+
     validate_response JSON.parse(response)
   end
 
   def validate_response(json)
-    p json
     # validate(json['cmd']) {|cmd| VALID_ACTIONS.include?(cmd)}
     # validate(json['x']) {|x| (-1..1).include?(x)} if json['x']
     # validate(json['y']) {|y| (-1..1).include?(y)} if json['y']
@@ -54,7 +52,7 @@ class Human < Actor
     when 'turn'
       turn(cmd['dir'])
     end
-    
+
   rescue World::SteppingOnToesError
   end
 

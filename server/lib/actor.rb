@@ -1,12 +1,12 @@
-module Energy
-  attr_accessor :energy
-
-  class NoEnergy < RuntimeError; end
-
-  def work(amount)
-    (self.energy < amount) ? raise(NoEnergy) : self.energy -= amount
-  end
-end
+# module Energy
+#   attr_accessor :energy
+#
+#   class NoEnergy < RuntimeError; end
+#
+#   def work(amount)
+#     (self.energy < amount) ? raise(NoEnergy) : self.energy -= amount
+#   end
+# end
 
 module Mortality
   attr_accessor :health
@@ -19,39 +19,28 @@ end
 
 class Actor
   include States
-  include Energy
   include Mortality
-
-  N_DIRECTIONS = 8
-
-  class_inheritable_accessor :world
+  # include Energy
 
   attr_accessor :x, :y, :dir
 
   states :idle, :moving, :turning, :attacking, :dead
 
   def initialize
-    self.state = :idle
-
-    # TODO Initialize properly
-    self.x, self.y, self.dir = 0, 0, 0
+    self.state, self.x, self.y, self.dir = :idle, 0, 0, 0
   end
 
   def rest!
     changes :from => being_alive, :to => :idle
   end
 
-  # Needs to be in a transaction
   def move(dx,dy)
-    validate(dx) {|x| (-1..1).include?(x)}
-    validate(dy) {|y| (-1..1).include?(y)}
-
-    $world.try_to_place(self, x+dx, y+dy)
-
+    world.try_to_place(self, x+dx, y+dy)
     changes :from => being_alive, :to => :moving
   end
 
   def attack!
+    world.bite(self)
     changes :from => being_alive, :to => :attacking
   end
 
@@ -62,14 +51,19 @@ class Actor
 
   def kill!
     self.health = -1
+    puts 'I\'m dead!'
     changes :from => being_alive, :to => :dead
   end
 
   def distance_to(actor)
-    Math.sqrt((actor.x - self.x)**2 + (actor.y-self.y)**2)
+    distance(actor.x, actor.y)
   end
 
 # private
+
+  def distance(x,y)
+    Math.sqrt((x - self.x)**2 + (y-self.y)**2)
+  end
 
   def being_alive
     [:idle, :moving, :turning, :attacking]
