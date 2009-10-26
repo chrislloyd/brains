@@ -60,27 +60,39 @@ class World
   def current_environment_for(actor)
     case actor
     when Zombie
-      {:visible => humans}
+      {:visible => humans.reject {|h| h.dead?}}
     when Human
       {:x => actor.x,
        :y => actor.y,
-       :dir => actor.dir
+       :dir => actor.dir,
+       :health => actor.health,
+       # :visible => actors_visible_for(actor)
       }
     end
   end
 
-  def bite(zombie)
-    humans.select {|h| zombie.distance_to(h) <= 5 }.each do |h|
-      h.hurt(30)
+  def try_to_attack(actor, victim)
+    victim.hurt(30) if actor.distance_to(victim) <= actor.attack_range && !victim.dead?
+  end
+
+  def actors_visible_for(actor)
+    []
+  end
+
+  class Point
+    attr_accessor :x, :y
+    def self.random(width, height)
+      returning(new){|p| p.x = rand(width); p.y = rand(height)}
     end
   end
 
-  def shoot(human)
+  def pick_point
+    Point.random(width, height)
   end
 
   def update
-    self.actors.each do |a|
-      a.think(current_environment_for(a))
+    actors.sort_by {rand}.each do |a|
+      a.think(current_environment_for(a)) unless a.dead?
     end
   end
 

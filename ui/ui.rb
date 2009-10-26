@@ -15,7 +15,7 @@ end
 class Actor
   attr_accessor :window, :image, :stale
 
-  attr_accessor :id, :x, :y, :dir
+  attr_accessor :id, :x, :y, :dir, :state
 
   def id; @id end
 
@@ -26,13 +26,12 @@ class Actor
   end
 
   def update(data)
-    # p data
-    self.x, self.y, self.dir = data['x'], data['y'], data['dir']
+    self.x, self.y, self.dir, self.state = data['x'], data['y'], data['dir'], data['state']
     self.stale = false
   end
 
   def draw
-    image.draw_rot(x*window.grid, window.height - y*window.grid, 1, self.dir || 0)
+    image.draw_rot(x*window.grid, window.height - y*window.grid, 1, self.dir || 0) unless state == 'dead'
     self.stale = true
   end
 

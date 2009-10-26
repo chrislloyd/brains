@@ -12,7 +12,7 @@ module Mortality
   attr_accessor :health
 
   def hurt(amount)
-    (self.health < amount) ? kill! : self.health -= amount
+    (self.health <= amount) ? kill! : self.health -= amount
   end
 end
 
@@ -27,7 +27,7 @@ class Actor
   states :idle, :moving, :turning, :attacking, :dead
 
   def initialize
-    self.state, self.x, self.y, self.dir = :idle, 0, 0, 0
+    self.state, self.x, self.y, self.dir, self.health = :idle, 0, 0, 0, 100
   end
 
   def rest!
@@ -40,7 +40,6 @@ class Actor
   end
 
   def attack!
-    world.bite(self)
     changes :from => being_alive, :to => :attacking
   end
 
@@ -50,8 +49,7 @@ class Actor
   end
 
   def kill!
-    self.health = -1
-    puts 'I\'m dead!'
+    self.health = 0
     changes :from => being_alive, :to => :dead
   end
 
@@ -75,7 +73,7 @@ class Actor
   end
 
   def to_hash
-    {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir, :type => self.class.name.downcase}
+    {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir, :type => self.class.name.downcase, :health => self.health}
   end
 
   # TODO Fix hack!
