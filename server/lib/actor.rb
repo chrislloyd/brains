@@ -84,10 +84,12 @@ class Actor
   end
 
   def can_see?(actor)
+    # Note sure about this code
     (direction_to(actor) - self.dir).abs < 90 && distance_to(actor) <= eyesight
   end
 
-  def can_attack?(actor)
+  def can_attack?(victim)
+    self != victim && !victim.dead? && (direction_to(victim) - dir).abs < 10 && distance_to(victim) <= attack_range
   end
 
 end

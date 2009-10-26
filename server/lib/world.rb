@@ -72,7 +72,23 @@ class World
   end
 
   def try_to_attack(actor, victim)
-    victim.hurt(actor.damage) if actor.distance_to(victim) <= actor.attack_range && !victim.dead?
+    if actor.can_attack?(victim)
+      actor.attack!
+      victim.hurt(actor.damage)
+    end
+  end
+
+  def shoot_from(actor)
+    p actors.collect{|a| a.health}
+    victim = actors.
+      select {|a| actor.can_attack?(a)}.
+      sort_by {|a| actor.distance_to(a)}.
+      first
+
+    if victim
+      actor.attack!
+      victim.hurt(actor.damage)
+    end
   end
 
   def actors_visible_for(actor)

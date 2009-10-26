@@ -7,9 +7,10 @@ def db
   @db ||= Redis.new
 end
 
-def world
-  @world ||= World.new(640, 480)
-end
+# Really bizarre bug where world was getting reset...
+$world = World.new(640, 480)
+def world; $world end
+
 
 db.flush_db
 

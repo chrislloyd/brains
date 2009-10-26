@@ -65,12 +65,16 @@ class Human < Actor
     when 'move'
       move(cmd['x'], cmd['y'])
     when 'attack'
-      attack!
+      shoot
     when 'turn'
       turn(cmd['dir'])
     end
   rescue World::SteppingOnToesError
     rest!
+  end
+
+  def shoot
+    world.shoot_from(self)
   end
 
   def validate(arg)

@@ -1,7 +1,7 @@
 class Zombie < Actor
 
   def think(env)
-    dinner = env[:visible].select {|h| distance_to(h) <= attack_range}
+    dinner = env[:visible].select {|h| can_attack?(h)}
 
     if dinner.empty?
       self.target = find_target(env[:visible]) if needs_target?
@@ -47,7 +47,7 @@ class Zombie < Actor
     world.try_to_attack(self, player)
   end
 
-  def attack_range; 20 end
   def damage; 30 end
+  def attack_range; 20 end
 
 end

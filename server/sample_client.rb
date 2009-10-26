@@ -1,6 +1,8 @@
 require 'sinatra'
 require 'json'
 
+require 'lib/core_ext'
+
 helpers do
   def json(obj)
     content_type :json
@@ -18,13 +20,31 @@ helpers do
   def rand_dir
     env['dir'] + rand_move*rand(5)
   end
+
+  def direction_to(actor)
+    dx = env['x'] - actor['x']
+    dy = env['y'] - actor['y']
+
+    (Math.atan2(dx, dy).to_deg + 180) % 360
+  end
+
 end
 
 post '/' do
   moves = [
-    {:action => 'turn', :dir => rand_dir},
+    # {:action => 'turn', :dir => rand_dir},
     {:action => 'move', :x => rand_move, :y => rand_move}
   ]
 
-  json moves[rand(moves.size)]
+  if env['visible'].empty?
+    json moves[rand(moves.size)]
+  else
+    dir = direction_to(env['visible'].first)
+    if (dir - env['dir']).abs < 5
+      json :action => 'attack'
+    else
+      json :action => 'turn', :dir => dir
+    end
+  end
+
 end
