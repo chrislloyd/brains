@@ -18,7 +18,7 @@ helpers do
   end
 
   def rand_dir
-    env['dir'] + rand_move*rand(5)
+    env['dir'] + 10
   end
 
   def direction_to(actor)
@@ -32,15 +32,17 @@ end
 
 post '/' do
   moves = [
-    # {:action => 'turn', :dir => rand_dir},
-    {:action => 'move', :x => rand_move, :y => rand_move}
+    {:action => 'turn', :dir => rand_dir}
+    # {:action => 'move', :x => rand_move, :y => rand_move}
   ]
+
+  env['visible'].reject! {|a| a['state'] == 'dead'}
 
   if env['visible'].empty?
     json moves[rand(moves.size)]
   else
     dir = direction_to(env['visible'].first)
-    if (dir - env['dir']).abs < 5
+    if (dir - env['dir']).abs < 10
       json :action => 'attack'
     else
       json :action => 'turn', :dir => dir

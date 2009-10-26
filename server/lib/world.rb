@@ -72,23 +72,20 @@ class World
   end
 
   def try_to_attack(actor, victim)
-    if actor.can_attack?(victim)
-      actor.attack!
-      victim.hurt(actor.damage)
-    end
+    issue_attack(actor, victim) if actor.can_attack?(victim)
   end
 
   def shoot_from(actor)
-    p actors.collect{|a| a.health}
     victim = actors.
       select {|a| actor.can_attack?(a)}.
       sort_by {|a| actor.distance_to(a)}.
       first
+    issue_attack(actor, victim) if victim
+  end
 
-    if victim
-      actor.attack!
-      victim.hurt(actor.damage)
-    end
+  def issue_attack(from, to)
+    from.attack!
+    to.hurt(from.damage)
   end
 
   def actors_visible_for(actor)
@@ -96,7 +93,9 @@ class World
     when Zombie
       humans
     else
-      actors.select { |a| actor.can_see?(a) }.map {|a| a.to_hash }
+      actors.
+        select { |a| actor.can_see?(a) && a != actor }.
+        map {|a| a.to_hash }
     end
   end
 

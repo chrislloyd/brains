@@ -49,12 +49,16 @@ class Actor
   end
 
   def kill!
-    self.health = 0
+    self.health = -1
     changes :from => being_alive, :to => :dead
   end
 
   def distance_to(actor)
     distance(actor.x, actor.y)
+  end
+
+  def dir=(dir)
+    @dir = dir % 360
   end
 
 # private
@@ -84,7 +88,6 @@ class Actor
   end
 
   def can_see?(actor)
-    # Note sure about this code
     (direction_to(actor) - self.dir).abs < 90 && distance_to(actor) <= eyesight
   end
 
