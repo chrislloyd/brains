@@ -67,11 +67,6 @@ class Actor
     [:idle, :moving, :turning, :attacking]
   end
 
-  # TODO Add error collection so we can send it back to the client
-  def validate(arg)
-    raise ArgumentError(arg) unless yield(arg)
-  end
-
   def to_hash
     {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir, :type => self.class.name.downcase, :health => self.health}
   end
@@ -80,16 +75,19 @@ class Actor
   def id
     @id ||= rand(10000000)
   end
-  
+
   def direction_to(actor)
     dx = x - actor.x
     dy = y - actor.y
 
     (Math.atan2(dx, dy).to_deg + 180) % 360
   end
-  
-  def can_see(actor)
-    (direction_to(actor) - self.dir).abs < 45
+
+  def can_see?(actor)
+    (direction_to(actor) - self.dir).abs < 90 && distance_to(actor) <= eyesight
+  end
+
+  def can_attack?(actor)
   end
 
 end

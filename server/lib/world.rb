@@ -66,7 +66,7 @@ class World
        :y => actor.y,
        :dir => actor.dir,
        :health => actor.health,
-       # :visible => actors_visible_for(actor)
+       :visible => actors_visible_for(actor)
       }
     end
   end
@@ -76,7 +76,12 @@ class World
   end
 
   def actors_visible_for(actor)
-    actors.select { |a| actor.can_see(a) }.map {|a| a.to_hash }
+    case actor
+    when Zombie
+      humans
+    else
+      actors.select { |a| actor.can_see?(a) }.map {|a| a.to_hash }
+    end
   end
 
   class Point

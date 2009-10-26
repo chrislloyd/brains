@@ -1,4 +1,4 @@
-require 'rest_client'
+require 'patron'
 
 class Human < Actor
 
@@ -7,37 +7,55 @@ class Human < Actor
 
   attr_accessor :brain
 
-  def self.new_with_brain(brain)
+  def self.new_with_brain(url)
     returning(new) do |h|
-      h.brain = brain
+      h.brain = url
     end
   end
 
-  BRAIN_TIMEOUT = 0.5
+  BRAIN_TIMEOUT = 1
+  BRAIN_CONNECT_TIMEOUT = 1000
+  BRAIN_MAX_REDIRECTS = 1
+
+  def brain=(url)
+    @brain = returning(Patron::Session.new) do |b|
+      b.connect_timeout = BRAIN_CONNECT_TIMEOUT
+      b.timeout = BRAIN_TIMEOUT
+      b.max_redirects = BRAIN_MAX_REDIRECTS
+      b.base_url = url
+      b.headers['User-Agent'] = 'brains/1.0'
+    end
+  end
 
   def send_request(env)
-    RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+    brain.post '/', env.to_json, {'Content-Type' => 'application/json'}
   end
 
   def think(env)
     response = normalize_response(send_request(env))
     update! response
-  rescue RestClient::Exception, ArgumentError
+  rescue Patron::Error, ArgumentError
     rest!
   end
 
   def normalize_response(response)
-    raise ArgumentError if response.length > MAX_RESPONSE_LENGTH
+    raise Patron::ConnectionFailed unless response.status == 200
+    raise ArgumentError if response.body.length > MAX_RESPONSE_LENGTH
 
-    validate_response JSON.parse(response)
+    validate_response JSON.parse(response.body)
   end
 
   def validate_response(json)
-    validate(json['action']) {|action| VALID_ACTIONS.include?(action)}
-    validate(json['x']) {|x| (-1..1).include?(x)} if json['x']
-    validate(json['y']) {|y| (-1..1).include?(y)} if json['y']
-    validate(json['dir']) {|dir| dir.is_a?(Numeric)} if json['dir']
-    json
+    returning(json) do |j|
+      {
+        'action' => lambda {|action| VALID_ACTIONS.include?(action)},
+        'x' => lambda {|x| (-1..1).include?(x)},
+        'y' => lambda {|y| (-1..1).include?(y)},
+        'dir' => lambda {|dir| dir.is_a?(Numeric)}
+      }.each do |key, validator|
+        validate(j[key], &validator) if j[key]
+      end
+    end
   end
 
   def update!(cmd)
@@ -55,6 +73,12 @@ class Human < Actor
     rest!
   end
 
+  def validate(arg)
+    raise ArgumentError unless yield(arg)
+  end
+
   def damage; 60 end
+  def attack_range; 200 end
+  def eyesight; 200 end
 
 end

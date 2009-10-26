@@ -17,7 +17,7 @@ db.flush_db
   world.add(Zombie.new)
 end
 
-h = world.add(Human.new_with_brain('localhost:4567'))
+h = world.add(Human.new_with_brain('http://localhost:4567'))
 
 loop do
   world.update
