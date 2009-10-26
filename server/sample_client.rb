@@ -21,6 +21,11 @@ helpers do
 end
 
 post '/' do
+  env = JSON.parse(params.to_s)
+  p env
+  @health = env['health']
+  puts "Health: #{@health}"
+  
   moves = [
     {:action => 'turn', :dir => rand_dir},
     {:action => 'move', :x => rand_move, :y => rand_move}
