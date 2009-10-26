@@ -1,7 +1,5 @@
 class Zombie < Actor
 
-  attr_accessor :target
-
   def think(env)
     dinner = env[:visible].select {|h| distance_to(h) <= attack_range}
 
@@ -16,6 +14,8 @@ class Zombie < Actor
   end
 
 # private
+
+  attr_accessor :target
 
   def find_target(actors)
     actors.sort_by {|h| self.distance_to(h)}.first || world.pick_point
@@ -48,4 +48,5 @@ class Zombie < Actor
   end
 
   def attack_range; 20 end
+
 end
