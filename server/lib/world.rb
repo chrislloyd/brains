@@ -72,12 +72,11 @@ class World
   end
 
   def try_to_attack(actor, victim)
-    victim.hurt(30) if actor.distance_to(victim) <= actor.attack_range && !victim.dead?
+    victim.hurt(actor.damage) if actor.distance_to(victim) <= actor.attack_range && !victim.dead?
   end
 
   def actors_visible_for(actor)
-    # actors.select { |a| actor.can_see(a) }.map {|a| a.to_hash }}
-    []
+    actors.select { |a| true }.map {|a| a.to_hash }
   end
 
   class Point

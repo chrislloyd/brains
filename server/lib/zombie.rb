@@ -48,5 +48,6 @@ class Zombie < Actor
   end
 
   def attack_range; 20 end
+  def damage; 30 end
 
 end

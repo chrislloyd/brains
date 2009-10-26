@@ -51,8 +51,10 @@ class Human < Actor
     when 'turn'
       turn(cmd['dir'])
     end
-
   rescue World::SteppingOnToesError
+    rest!
   end
+
+  def damage; 60 end
 
 end
