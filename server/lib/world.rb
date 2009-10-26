@@ -76,6 +76,7 @@ class World
   end
 
   def actors_visible_for(actor)
+    # actors.select { |a| actor.can_see(a) }.map {|a| a.to_hash }}
     []
   end
 
