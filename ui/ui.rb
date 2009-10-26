@@ -58,7 +58,7 @@ class Window < Gosu::Window
 
   def update
     db.keys('*').each do |id|
-      data = JSON.parse(db[id])
+      data = JSON.parse(db[id] || {})
       if actors[id]
         actors[id].update(data)
       else
