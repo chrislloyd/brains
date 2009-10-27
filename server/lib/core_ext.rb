@@ -33,3 +33,12 @@ end
 def rand(start=nil, limit = nil)
   start && limit ? start + super(limit - start) : super(start)
 end
+
+def perf(msg='')
+  start = Time.now
+  result = yield
+  diff = Time.now.to_f - start.to_f
+  puts "=> #{msg} #{"%0.4f" % (diff)}s"
+  result
+end
+

@@ -19,16 +19,18 @@ class Human < Actor
 
   def brain=(url)
     @brain = returning(Patron::Session.new) do |b|
-      b.connect_timeout = BRAIN_CONNECT_TIMEOUT
-      b.timeout = BRAIN_TIMEOUT
-      b.max_redirects = BRAIN_MAX_REDIRECTS
+      # b.connect_timeout = BRAIN_CONNECT_TIMEOUT
+      # b.timeout = BRAIN_TIMEOUT
+      # b.max_redirects = BRAIN_MAX_REDIRECTS
       b.base_url = url
       b.headers['User-Agent'] = 'brains/1.0'
     end
   end
 
   def send_request(env)
-    brain.post '/', env.to_json, {'Content-Type' => 'application/json'}
+    perf('sending request') do
+      brain.post '/', env.to_json, {'Content-Type' => 'application/json'}
+    end
   end
 
   def think(env)
