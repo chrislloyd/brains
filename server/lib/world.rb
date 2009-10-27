@@ -2,17 +2,19 @@ class World
 
   attr_accessor :width, :height, :actors, :clock
 
+  attr_writer :zombies, :humans
+
   def initialize(width = 200, height = 200)
     self.width, self.height = width, height
     self.actors, self.clock = [], 0
   end
 
   def zombies
-    actors.select {|a| a.is_a?(Zombie)}
+    @zombies ||= actors.select {|a| a.is_a?(Zombie)}
   end
 
   def humans
-    actors.select {|a| a.is_a?(Human)}
+    @humans ||= actors.select {|a| a.is_a?(Human)}
   end
 
   def add(actor)
@@ -128,6 +130,9 @@ class World
 
   # TODO Leave dead actors on the board for a number of ticks
   def clean
+    self.zombies = nil
+    self.humans = nil
+
     actors.reject! {|a| a.dead?}
   end
 
