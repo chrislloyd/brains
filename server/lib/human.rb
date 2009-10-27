@@ -13,8 +13,8 @@ class Human < Actor
     end
   end
 
-  BRAIN_TIMEOUT = 1
-  BRAIN_CONNECT_TIMEOUT = 1000
+  BRAIN_TIMEOUT = 100
+  BRAIN_CONNECT_TIMEOUT = 100000
   BRAIN_MAX_REDIRECTS = 1
 
   def brain=(url)

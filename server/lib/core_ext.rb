@@ -1,3 +1,12 @@
+module Math
+  def self.min(x,y)
+    x < y ? x : y
+  end
+  def self.max(x,y)
+    x > y ? x : y
+  end
+end
+
 class Numeric
   def to_deg
     self * (180 / Math::PI)

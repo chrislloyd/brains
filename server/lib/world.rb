@@ -119,11 +119,12 @@ class World
   end
 
   MIN_NUMBER_OF_ZOMBIES = 10
-  ZOMBIE_MUTLIPLIER = 0
+  ZOMBIE_MUTLIPLIER = 10
+  PERIOD = 10000
 
   def tick!
     self.clock += 1
-    self.clock %= 360
+    self.clock %= PERIOD
   end
 
   DEAD_TIME = 30 # ticks
@@ -133,17 +134,16 @@ class World
     self.zombies = nil
     self.humans = nil
 
-    actors.reject! {|a| a.dead?}
+    actors.
+      each {|a| db.delete(a.id) if a.dead? }.
+      reject! {|a| a.dead? }
   end
 
   def spawn
     n_players = humans.reject {|a| a.dead?}.size
     n_zombies = zombies.reject {|a| a.dead?}.size
 
-    number_of_new_zombies = (n_players * MIN_NUMBER_OF_ZOMBIES) + (Math.sin(clock.to_rad).abs * ZOMBIE_MUTLIPLIER).round - n_zombies
-
-    # TODO Math.max
-    number_of_new_zombies = (number_of_new_zombies > 0) ? number_of_new_zombies : 0
+    number_of_new_zombies = Math.max((n_players * MIN_NUMBER_OF_ZOMBIES) + (Math.sin(clock.to_rad).abs * ZOMBIE_MUTLIPLIER).round - n_zombies, 0)
 
     number_of_new_zombies.times do
       add(Zombie.new)
