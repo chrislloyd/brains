@@ -14,13 +14,13 @@ def world; $world end
 
 db.flush_db
 
-10.times do
-  world.add(Zombie.new)
-end
-
 h = world.add(Human.new_with_brain('http://localhost:4567'))
 
 loop do
+  world.tick!
+  world.clean
+  world.spawn
+
   world.update
   world.save
   sleep 1/30.0

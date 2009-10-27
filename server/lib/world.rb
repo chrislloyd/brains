@@ -1,10 +1,10 @@
 class World
 
-  attr_accessor :width, :height, :actors
+  attr_accessor :width, :height, :actors, :clock
 
   def initialize(width = 200, height = 200)
     self.width, self.height = width, height
-    self.actors = []
+    self.actors, self.clock = [], 0
   end
 
   def zombies
@@ -113,6 +113,35 @@ class World
   def update
     actors.sort_by {rand}.each do |a|
       a.think(current_environment_for(a)) unless a.dead?
+    end
+  end
+
+  MIN_NUMBER_OF_ZOMBIES = 10
+  ZOMBIE_MUTLIPLIER = 0
+
+  def tick!
+    self.clock += 1
+    self.clock %= 360
+  end
+
+  DEAD_TIME = 30 # ticks
+
+  # TODO Leave dead actors on the board for a number of ticks
+  def clean
+    actors.reject! {|a| a.dead?}
+  end
+
+  def spawn
+    n_players = humans.reject {|a| a.dead?}.size
+    n_zombies = zombies.reject {|a| a.dead?}.size
+
+    number_of_new_zombies = (n_players * MIN_NUMBER_OF_ZOMBIES) + (Math.sin(clock.to_rad).abs * ZOMBIE_MUTLIPLIER).round - n_zombies
+
+    # TODO Math.max
+    number_of_new_zombies = (number_of_new_zombies > 0) ? number_of_new_zombies : 0
+
+    number_of_new_zombies.times do
+      add(Zombie.new)
     end
   end
 

@@ -22,7 +22,7 @@ class Actor
   include Mortality
   # include Energy
 
-  attr_accessor :x, :y, :dir
+  attr_accessor :x, :y, :dir, :dead_time
 
   states :idle, :moving, :turning, :attacking, :dead
 
@@ -88,7 +88,7 @@ class Actor
   end
 
   def can_see?(actor)
-    (direction_to(actor) - self.dir).abs < 90 && distance_to(actor) <= eyesight
+    (direction_to(actor) - self.dir).abs < 60 && distance_to(actor) <= eyesight
   end
 
   def can_attack?(victim)
