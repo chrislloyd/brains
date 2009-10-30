@@ -7,6 +7,18 @@ module Math
   end
 end
 
+class Array
+  def pick
+    self[rand(size)]
+  end
+end
+
+class Hash
+  def pick
+    self[keys.pick]
+  end
+end
+
 class Numeric
   def to_deg
     self * (180 / Math::PI)

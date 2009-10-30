@@ -48,9 +48,12 @@ class Zombie < Actor
   end
 
   def self.place(width, height)
-    x = rand(0, width + 1)
-    y = height + 1
-    [x, y]
+    {
+      :top => [rand(-1, width+1), height+1],
+      :right => [width+1, rand(-1, height+1)],
+      :bottom => [rand(-1, width+1), -1],
+      :left => [-1, rand(-1, height+1)]
+    }.pick
   end
 
   def damage; 30 end
