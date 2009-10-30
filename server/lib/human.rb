@@ -7,6 +7,14 @@ class Human < Actor
 
   attr_accessor :brain
 
+  def self.place(width, height)
+    x_variance = width * 0.1
+    x = rand(-x_variance, x_variance) + width / 2
+    y_variance = height * 0.1
+    y = rand(-y_variance, y_variance) + height / 2
+    [x, y]
+  end
+
   def self.new_with_brain(url)
     returning(new) do |h|
       h.brain = url
@@ -17,32 +25,19 @@ class Human < Actor
   BRAIN_CONNECT_TIMEOUT = 100000
   BRAIN_MAX_REDIRECTS = 1
 
-  # def brain=(url)
-  #   @brain = returning(Patron::Session.new) do |b|
-  #     # b.connect_timeout = BRAIN_CONNECT_TIMEOUT
-  #     # b.timeout = BRAIN_TIMEOUT
-  #     # b.max_redirects = BRAIN_MAX_REDIRECTS
-  #     b.base_url = url
-  #     b.headers['User-Agent'] = 'brains/1.0'
-  #   end
-  # end
-
   def send_request(env)
-    perf('sending request') do
-      RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
-      # brain.post '/', env.to_json, {'Content-Type' => 'application/json'}
-    end
+    RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
   end
 
   def think(env)
     response = normalize_response(send_request(env))
     update! response
-  # rescue Patron::Error, ArgumentError
-  #   rest!
+  rescue RestClient::Exception, ArgumentError
+    rest!
   end
 
   def normalize_response(response)
-    # raise Patron::ConnectionFailed unless response.status == 200
+    raise RestClient::Exception unless response.code == 200
     raise ArgumentError if response.length > MAX_RESPONSE_LENGTH
 
     validate_response JSON.parse(response)

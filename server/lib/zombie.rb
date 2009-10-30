@@ -47,6 +47,12 @@ class Zombie < Actor
     world.try_to_attack(self, player)
   end
 
+  def self.place(width, height)
+    x = rand(0, width + 1)
+    y = height + 1
+    [x, y]
+  end
+
   def damage; 30 end
   def attack_range; 20 end
 

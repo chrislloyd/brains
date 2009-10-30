@@ -33,30 +33,11 @@ class World
   end
 
   def place(actor)
-    x, y = case actor
-    when Zombie
-      place_zombie(actor)
-    when Human
-      place_human(actor)
-    end
+    x, y = actor.class.place(width, height)
     try_to_place actor, x, y
     actor
   rescue SteppingOnToesError
     retry
-  end
-
-  def place_zombie(actor)
-    x = rand(0, width + 1)
-    y = height + 1
-    [x, y]
-  end
-
-  def place_human(actor)
-    x_variance = self.width * 0.1
-    x = rand(-x_variance, x_variance) + self.width / 2
-    y_variance = self.height * 0.1
-    y = rand(-y_variance, y_variance) + self.height / 2
-    [x, y]
   end
 
   def current_environment_for(actor)
@@ -118,10 +99,6 @@ class World
     end
   end
 
-  MIN_NUMBER_OF_ZOMBIES = 10
-  ZOMBIE_MUTLIPLIER = 50
-  PERIOD = 10000
-
   def tick!
     self.clock += 1
     self.clock %= PERIOD
@@ -138,6 +115,10 @@ class World
       each {|a| db.delete(a.id) if a.dead? }.
       reject! {|a| a.dead? }
   end
+
+  MIN_NUMBER_OF_ZOMBIES = 10
+  ZOMBIE_MUTLIPLIER = 50
+  PERIOD = 10000
 
   def spawn
     n_players = humans.reject {|a| a.dead?}.size
