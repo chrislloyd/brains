@@ -1,4 +1,4 @@
-require 'patron'
+require 'rest_client'
 
 class Human < Actor
 
@@ -17,34 +17,35 @@ class Human < Actor
   BRAIN_CONNECT_TIMEOUT = 100000
   BRAIN_MAX_REDIRECTS = 1
 
-  def brain=(url)
-    @brain = returning(Patron::Session.new) do |b|
-      # b.connect_timeout = BRAIN_CONNECT_TIMEOUT
-      # b.timeout = BRAIN_TIMEOUT
-      # b.max_redirects = BRAIN_MAX_REDIRECTS
-      b.base_url = url
-      b.headers['User-Agent'] = 'brains/1.0'
-    end
-  end
+  # def brain=(url)
+  #   @brain = returning(Patron::Session.new) do |b|
+  #     # b.connect_timeout = BRAIN_CONNECT_TIMEOUT
+  #     # b.timeout = BRAIN_TIMEOUT
+  #     # b.max_redirects = BRAIN_MAX_REDIRECTS
+  #     b.base_url = url
+  #     b.headers['User-Agent'] = 'brains/1.0'
+  #   end
+  # end
 
   def send_request(env)
     perf('sending request') do
-      brain.post '/', env.to_json, {'Content-Type' => 'application/json'}
+      RestClient.post brain, env.to_json, :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+      # brain.post '/', env.to_json, {'Content-Type' => 'application/json'}
     end
   end
 
   def think(env)
     response = normalize_response(send_request(env))
     update! response
-  rescue Patron::Error, ArgumentError
-    rest!
+  # rescue Patron::Error, ArgumentError
+  #   rest!
   end
 
   def normalize_response(response)
-    raise Patron::ConnectionFailed unless response.status == 200
-    raise ArgumentError if response.body.length > MAX_RESPONSE_LENGTH
+    # raise Patron::ConnectionFailed unless response.status == 200
+    raise ArgumentError if response.length > MAX_RESPONSE_LENGTH
 
-    validate_response JSON.parse(response.body)
+    validate_response JSON.parse(response)
   end
 
   def validate_response(json)
