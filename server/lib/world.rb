@@ -114,7 +114,7 @@ class World
   end
 
   MIN_NUMBER_OF_ZOMBIES = 10
-  ZOMBIE_MUTLIPLIER = 50
+  ZOMBIE_MUTLIPLIER = 30
   PERIOD = 10000
 
   def spawn

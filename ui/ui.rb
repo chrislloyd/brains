@@ -104,7 +104,7 @@ class Window < Gosu::Window
         {
           :x => x,
           :y => y,
-          :tile => (rand(16) % 16 == 0) ? @shrubbery : @grass
+          :tile => (rand(32) % 32 == 0) ? @shrubbery : @grass
         }
       end
     end
