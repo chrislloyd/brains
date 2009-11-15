@@ -104,7 +104,10 @@ class Robot < Actor
     raise ArgumentError unless yield(arg)
   end
 
-  def damage; 30 end
+  def damage
+    30 + rand(0,30)
+  end
+
   def attack_range; 200 end
   def eyesight; 200 end
 
