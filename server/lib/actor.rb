@@ -28,6 +28,7 @@ class Actor
 
   def initialize
     self.state, self.x, self.y, self.dir, self.health = :idle, 0, 0, 0, 100
+    self.staleness = 0
   end
 
   def rest!
@@ -50,6 +51,7 @@ class Actor
 
   def kill!
     self.health = -1
+    self.staleness = 0
     changes :from => being_alive, :to => :dead
   end
 
@@ -75,7 +77,7 @@ class Actor
     {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir, :type => self.class.name.downcase, :health => self.health}
   end
 
-  # TODO Fix hack!
+  # TODO Fix hack! Replace with uuid
   def id
     @id ||= rand(10000000)
   end
@@ -93,6 +95,12 @@ class Actor
 
   def can_attack?(victim)
     self != victim && !victim.dead? && (direction_to(victim) - dir).abs < 10 && distance_to(victim) <= attack_range
+  end
+
+  attr_accessor :staleness
+
+  def decays
+    self.staleness += 1
   end
 
 end

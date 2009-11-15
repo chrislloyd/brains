@@ -31,15 +31,10 @@ helpers do
 end
 
 post '/' do
-  moves = [
-    {:action => 'turn', :dir => rand_dir}
-    # {:action => 'move', :x => rand_move, :y => rand_move}
-  ]
-
   env['visible'].reject! {|a| a['state'] == 'dead'}
 
   if env['visible'].empty?
-    json moves[rand(moves.size)]
+    json :action => 'turn', :dir => rand_dir
   else
     dir = direction_to(env['visible'].first)
     if (dir - env['dir']).abs < 10

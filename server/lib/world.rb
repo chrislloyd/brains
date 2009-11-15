@@ -102,18 +102,17 @@ class World
   def tick!
     self.clock += 1
     self.clock %= PERIOD
+
+    actors.select {|a| a.dead? }.each {|a| a.decays }
   end
 
-  DEAD_TIME = 30 # ticks
+  STALENESS_LIMIT = 30 # ticks
 
-  # TODO Leave dead actors on the board for a number of ticks
   def clean
     self.zombies = nil
     self.humans = nil
 
-    actors.
-      each {|a| db.delete(a.id) if a.dead? }.
-      reject! {|a| a.dead? }
+    actors.reject! {|a| a.staleness >= STALENESS_LIMIT && db.delete(a.id) }
   end
 
   MIN_NUMBER_OF_ZOMBIES = 10
