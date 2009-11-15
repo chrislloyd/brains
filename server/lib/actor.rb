@@ -17,7 +17,7 @@ class Actor
 
   def initialize
     self.state, self.x, self.y, self.dir, self.health = :idle, 0, 0, 0, 100
-    self.staleness = 0
+    self.decay = 0
   end
 
   def rest!
@@ -40,7 +40,6 @@ class Actor
 
   def kill!
     self.health = -1
-    self.staleness = 0
     changes :from => being_alive, :to => :dead
   end
 
@@ -63,7 +62,7 @@ class Actor
   end
 
   def to_hash
-    {:state => self.state, :x => self.x, :y => self.y, :dir => self.dir, :type => self.class.name.downcase, :health => self.health}
+    {:state => state, :x => x, :y => y, :dir => dir, :type => self.class.name.downcase, :health => health, :decay => decay}
   end
 
   # TODO Fix hack! Replace with uuid
@@ -86,10 +85,10 @@ class Actor
     self != victim && !victim.dead? && (direction_to(victim) - dir).abs < 10 && distance_to(victim) <= attack_range
   end
 
-  attr_accessor :staleness
+  attr_accessor :decay
 
   def decays
-    self.staleness += 1
+    self.decay += 1
   end
 
 end

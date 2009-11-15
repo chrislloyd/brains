@@ -107,13 +107,13 @@ class World
     actors.select {|a| a.dead? }.each {|a| a.decays }
   end
 
-  STALENESS_LIMIT = 30 # ticks
+  DECAY_LIMIT = 100 # ticks
 
   def clean
     self.zombies = nil
     self.humans = nil
 
-    actors.reject! {|a| a.staleness >= STALENESS_LIMIT && db.delete(a.id) }
+    actors.reject! {|a| a.decay > DECAY_LIMIT && db.delete(a.id) }
   end
 
   MIN_NUMBER_OF_ZOMBIES = 10

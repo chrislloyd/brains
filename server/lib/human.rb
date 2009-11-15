@@ -104,7 +104,7 @@ class Human < Actor
     raise ArgumentError unless yield(arg)
   end
 
-  def damage; 60 end
+  def damage; 30 end
   def attack_range; 200 end
   def eyesight; 200 end
 
