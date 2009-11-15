@@ -60,7 +60,7 @@ class Zombie < Actor
     }.pick
   end
 
-  def damage; 30 end
+  def damage; 2 end
   def attack_range; 20 end
 
 end

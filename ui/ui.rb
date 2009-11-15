@@ -11,6 +11,12 @@ def db
   @redis ||= Redis.new
 end
 
+class ZIndex
+  LAYERS = [:world, :robot, :zombie]
+
+  def self.for(type); LAYERS.index(type) end
+end
+
 class Actor
   attr_accessor :data
 
@@ -21,7 +27,7 @@ class Actor
     @sprites ||=  Dir['sprites/*.png'].inject({}) do |sprites,f|
       sprite = File.basename(f,'.*').split('-')
       sprites[sprite.first] ||= {}
-      sprites[sprite.first][sprite.last] = Gosu::Image.new(window, f, true)
+      sprites[sprite.first][sprite.last] = Gosu::Image.new(window, f, false)
       sprites
     end
   end
@@ -41,7 +47,7 @@ class Actor
   end
 
   def draw
-    image.draw_rot(data['x']*window.grid, window.height - data['y']*window.grid, 1, data['dir']) if image
+    image.draw_rot(data['x']*window.grid, window.height - data['y']*window.grid, ZIndex.for(data['type'].to_sym), data['dir']) if image
   end
 
   def window
@@ -60,6 +66,7 @@ class Window < Gosu::Window
     self.grid = 1
     self.actors = []
     Actor.window = self
+    @grass = Gosu::Image.new(self, 'tiles/grass.png', true)
   end
 
   def update
@@ -72,12 +79,32 @@ class Window < Gosu::Window
   end
 
   def draw
+    draw_scenery
     actors.each {|a| a.draw }
   end
 
   def button_down(id)
     close if id == Gosu::Button::KbEscape
   end
+
+  # private
+
+  def tile_positions
+    w, h = @grass.width, @grass.height
+    @tile_positions ||= {
+      :x => (0...width).to_a.inject([]) {|a,x| a << x if x % w == 0; a},
+      :y => (0...height).to_a.inject([]) {|a,y| a << y if y % h == 0; a}
+    }
+  end
+
+  def draw_scenery
+    tile_positions[:y].each do |y|
+      tile_positions[:x].each do |x|
+        @grass.draw(x, y, ZIndex.for(:world))
+      end
+    end
+  end
+
 end
 
 window = Window.new
