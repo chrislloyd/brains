@@ -12,7 +12,7 @@ def db
 end
 
 class ZIndex
-  LAYERS = [:world, :robot, :zombie]
+  LAYERS = [:world, :dead, :robot, :zombie]
 
   def self.for(type); LAYERS.index(type) end
 end
@@ -47,7 +47,26 @@ class Actor
   end
 
   def draw
-    image.draw_rot(data['x']*window.grid, window.height - data['y']*window.grid, ZIndex.for(data['type'].to_sym), data['dir']) if image
+    image.draw_rot(x, y, z, data['dir'])
+
+    if data['type'] == 'robot' && data['state'] == 'attacking'
+      x2 = x + Gosu.offset_x(data['dir'], 200)
+      y2 = y + Gosu.offset_y(data['dir'], 200)
+
+      window.draw_line(x, y, 0x00FF0000, x2, y2, 0x99FF0000)
+    end
+  end
+
+  def x
+    data['x']*window.grid
+  end
+
+  def y
+    window.height - data['y']*window.grid
+  end
+
+  def z
+    (data['state'] == 'dead') ? ZIndex.for(:dead) : ZIndex.for(data['type'].to_sym)
   end
 
   def window
