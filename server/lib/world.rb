@@ -37,6 +37,7 @@ class World
     try_to_place actor, x, y
     actor
   rescue SteppingOnToesError
+    # TODO Only do this a certain number of times
     retry
   end
 

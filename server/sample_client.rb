@@ -33,15 +33,18 @@ end
 post '/' do
   env['visible'].reject! {|a| a['state'] == 'dead'}
 
-  if env['visible'].empty?
-    json :action => 'turn', :dir => rand_dir
-  else
-    dir = direction_to(env['visible'].first)
-    if (dir - env['dir']).abs < 10
-      json :action => 'attack'
+  if rand(4) == 0
+    if env['visible'].empty?
+      json :action => 'turn', :dir => rand_dir
     else
-      json :action => 'turn', :dir => dir
+      dir = direction_to(env['visible'].first)
+      if (dir - env['dir']).abs < 10
+        json :action => 'attack'
+      else
+        json :action => 'turn', :dir => dir
+      end
     end
+  else
+    json :action => 'idle'
   end
-
 end

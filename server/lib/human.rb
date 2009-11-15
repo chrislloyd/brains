@@ -21,6 +21,11 @@ class Human < Actor
     end
   end
 
+  def initialize
+    super
+    self.energy = 100
+  end
+
   BRAIN_TIMEOUT = 100
   BRAIN_CONNECT_TIMEOUT = 100000
   BRAIN_MAX_REDIRECTS = 1
@@ -59,16 +64,36 @@ class Human < Actor
   def update!(cmd)
     case cmd['action']
     when 'idle'
+      work(:idle)
       rest!
     when 'move'
+      work(:move)
       move(cmd['x'], cmd['y'])
-    when 'attack'
-      shoot
     when 'turn'
+      work(:turn)
       turn(cmd['dir'])
+    when 'attack'
+      work(:attack)
+      shoot
     end
-  rescue World::SteppingOnToesError
+  rescue World::SteppingOnToesError, ExhaustedError
     rest!
+  end
+
+  attr_accessor :energy
+
+  class ExhaustedError < RuntimeError; end
+
+  EXPENSES = {
+    :idle => 20,
+    :move => -20,
+    :turn => -30,
+    :attack => -100
+  }
+
+  def work(task)
+    amount = EXPENSES[task]
+    (energy < -amount) ? raise(ExhaustedError) : self.energy += amount
   end
 
   def shoot

@@ -1,13 +1,3 @@
-# module Energy
-#   attr_accessor :energy
-#
-#   class NoEnergy < RuntimeError; end
-#
-#   def work(amount)
-#     (self.energy < amount) ? raise(NoEnergy) : self.energy -= amount
-#   end
-# end
-
 module Mortality
   attr_accessor :health
 
@@ -20,7 +10,6 @@ end
 class Actor
   include States
   include Mortality
-  # include Energy
 
   attr_accessor :x, :y, :dir, :dead_time
 
