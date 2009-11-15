@@ -67,6 +67,7 @@ class Window < Gosu::Window
     self.actors = []
     Actor.window = self
     @grass = Gosu::Image.new(self, 'tiles/grass.png', true)
+    @shrubbery = Gosu::Image.new(self, 'tiles/shrubbery.png', true)
   end
 
   def update
@@ -97,10 +98,22 @@ class Window < Gosu::Window
     }
   end
 
+  def map
+    @map ||= tile_positions[:y].map do |y|
+      tile_positions[:x].map do |x|
+        {
+          :x => x,
+          :y => y,
+          :tile => (rand(16) % 16 == 0) ? @shrubbery : @grass
+        }
+      end
+    end
+  end
+
   def draw_scenery
-    tile_positions[:y].each do |y|
-      tile_positions[:x].each do |x|
-        @grass.draw(x, y, ZIndex.for(:world))
+    map.each do |row|
+      row.each do |col|
+        col[:tile].draw(col[:x], col[:y], ZIndex.for(:world))
       end
     end
   end
