@@ -12,7 +12,6 @@ def db
 end
 
 class Actor
-
   attr_accessor :data
 
   def self.window=(window); @window = window end

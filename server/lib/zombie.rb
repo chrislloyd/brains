@@ -26,7 +26,7 @@ class Zombie < Actor
   end
 
   def needs_target?
-    !target || (target.is_a?(Human) && target.dead?) || (target.is_a?(World::Point) && x.near?(target.x, 40) && y.near?(target.y, 40))
+    !target || (target.is_a?(Robot) && target.dead?) || (target.is_a?(World::Point) && x.near?(target.x, 40) && y.near?(target.y, 40))
   end
 
   def move_to(target)

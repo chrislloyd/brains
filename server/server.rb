@@ -14,7 +14,7 @@ def world; $world end
 # TODO Perhaps remove this?
 db.flush_db
 
-h = world.add(Human.new_with_brain('http://localhost:4567'))
+h = world.add(Robot.new_with_brain('http://localhost:4567'))
 
 # TODO Have a seperate thread which checks bonjour
 # When a remote is found, send a verification code

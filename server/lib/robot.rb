@@ -1,6 +1,6 @@
 require 'rest_client'
 
-class Human < Actor
+class Robot < Actor
 
   MAX_RESPONSE_LENGTH = 256
   VALID_ACTIONS = %w(idle move attack turn)

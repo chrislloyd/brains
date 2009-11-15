@@ -2,7 +2,7 @@ class World
 
   attr_accessor :width, :height, :actors, :clock
 
-  attr_writer :zombies, :humans
+  attr_writer :zombies, :robots
 
   def initialize(width = 200, height = 200)
     self.width, self.height = width, height
@@ -10,11 +10,11 @@ class World
   end
 
   def zombies
-    @zombies ||= actors.select {|a| a.is_a?(Zombie)}
+    actors.select {|a| a.is_a?(Zombie)}
   end
 
-  def humans
-    @humans ||= actors.select {|a| a.is_a?(Human)}
+  def robots
+    actors.select {|a| a.is_a?(Robot)}
   end
 
   def add(actor)
@@ -44,8 +44,8 @@ class World
   def current_environment_for(actor)
     case actor
     when Zombie
-      {:visible => humans.reject {|h| h.dead?}}
-    when Human
+      {:visible => robots.reject {|h| h.dead?}}
+    when Robot
       {:x => actor.x,
        :y => actor.y,
        :dir => actor.dir,
@@ -75,7 +75,7 @@ class World
   def actors_visible_for(actor)
     case actor
     when Zombie
-      humans
+      robots
     else
       actors.
         select { |a| actor.can_see?(a) && a != actor }.
@@ -110,9 +110,6 @@ class World
   DECAY_LIMIT = 100 # ticks
 
   def clean
-    self.zombies = nil
-    self.humans = nil
-
     actors.reject! {|a| a.decay > DECAY_LIMIT && db.delete(a.id) }
   end
 
@@ -121,10 +118,10 @@ class World
   PERIOD = 10000
 
   def spawn
-    n_players = humans.reject {|a| a.dead?}.size
+    n_robots = robots.reject {|a| a.dead?}.size
     n_zombies = zombies.reject {|a| a.dead?}.size
 
-    number_of_new_zombies = Math.max((n_players * MIN_NUMBER_OF_ZOMBIES) + (Math.sin(clock.to_rad).abs * ZOMBIE_MUTLIPLIER).round - n_zombies, 0)
+    number_of_new_zombies = Math.max((n_robots * MIN_NUMBER_OF_ZOMBIES) + (Math.sin(clock.to_rad).abs * ZOMBIE_MUTLIPLIER).round - n_zombies, 0)
 
     number_of_new_zombies.times do
       add(Zombie.new)
