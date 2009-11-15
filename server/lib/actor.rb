@@ -51,7 +51,11 @@ class Actor
     @dir = dir % 360
   end
 
-# private
+  attr_accessor :decay
+
+  def decays
+    self.decay += 1
+  end
 
   def distance(x,y)
     Math.sqrt((x - self.x)**2 + (y-self.y)**2)
@@ -78,17 +82,15 @@ class Actor
   end
 
   def can_see?(actor)
-    (direction_to(actor) - self.dir).abs < 60 && distance_to(actor) <= eyesight
+    in_range?(actor, 60, eyesight)
   end
 
   def can_attack?(victim)
-    self != victim && !victim.dead? && (direction_to(victim) - dir).abs < 10 && distance_to(victim) <= attack_range
+    self != victim && !victim.dead? && in_range?(victim, 10, attack_range)
   end
 
-  attr_accessor :decay
-
-  def decays
-    self.decay += 1
+  def in_range?(victim, scope, dist_limit)
+    (direction_to(victim) - dir).abs < scope && distance_to(victim) <= dist_limit
   end
 
 end

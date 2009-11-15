@@ -1,18 +1,18 @@
 class Zombie < Actor
 
   def think(env)
-    dinner = env[:visible].select {|h| can_attack?(h)}
+    dinner = env[:visible].find {|r| can_attack?(r)}
 
-    if rand(0,3) == 0
-      if dinner.empty?
+    # if rand(0,3) == 0
+      if dinner
+        bite(dinner)
+      else
         self.target = find_target(env[:visible]) if needs_target?
         move_to(target)
-      else
-        bite(dinner.first)
       end
-    else
-      rest!
-    end
+    # else
+      # rest!
+    # end
   rescue World::SteppingOnToesError
     rest!
   end
@@ -22,7 +22,7 @@ class Zombie < Actor
   attr_accessor :target
 
   def find_target(actors)
-    actors.sort_by {|h| self.distance_to(h)}.first || world.pick_point
+    actors.sort_by {|a| self.distance_to(a)}.first || world.pick_point
   end
 
   def needs_target?
@@ -61,6 +61,7 @@ class Zombie < Actor
   end
 
   def damage; 2 end
-  def attack_range; 20 end
+  def attack_range; 10 end
+  def eyesight; 10 end
 
 end

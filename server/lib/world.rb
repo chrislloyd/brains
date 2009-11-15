@@ -25,7 +25,7 @@ class World
   class SteppingOnToesError < RuntimeError; end
 
   def try_to_place(actor, x, y)
-    if actors.detect {|a| a != actor && a.x == x && a.y == y}
+    if actors.detect {|a| a != actor && a.x == x && a.y == y && !a.dead?}
       raise SteppingOnToesError
     else
       actor.x, actor.y = x, y
