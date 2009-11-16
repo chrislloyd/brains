@@ -37,7 +37,7 @@ All we require to power a robot is a webserver. For the moment, it must run on [
       ]
     }
 
-The `x` and `y` are your position on the board and `dir` is the direction where you are looking. You health is always out of 100. Energy is also out of 100.
+The `x` and `y` are your position on the board and `dir` is the direction where you are looking. Your health is always out of 100. Energy is also out of 100.
 
 Your health goes down when you are attacked by a Zombie. They do 2 damage with each attack. I'll explain energy later.
 
