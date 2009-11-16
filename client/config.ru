@@ -1,2 +1,2 @@
-require 'sample_client'
+require 'dummy'
 run Sinatra::Application
