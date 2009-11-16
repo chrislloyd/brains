@@ -87,7 +87,11 @@ class World
 
   def update
     actors.sort_by {rand}.each do |a|
-      a.think(current_environment_for(a)) unless a.dead?
+      begin
+        a.think(current_environment_for(a)) unless a.dead?
+      rescue Errno::ECONNREFUSED
+        a.kill!
+      end
     end
   end
 

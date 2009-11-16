@@ -121,4 +121,7 @@ class Robot < Actor
   def attack_range; 200 end
   def eyesight; 200 end
 
+  def decays
+    self.decay += 5
+  end
 end
