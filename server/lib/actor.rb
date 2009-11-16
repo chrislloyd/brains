@@ -1,3 +1,5 @@
+require 'uuid'
+
 module Mortality
   attr_accessor :health
 
@@ -69,9 +71,8 @@ class Actor
     {:state => state, :x => x, :y => y, :dir => dir, :type => self.class.name.downcase, :health => health, :decay => decay}
   end
 
-  # TODO Fix hack! Replace with uuid
   def id
-    @id ||= rand(10000000)
+    @id ||= UUID.new.generate
   end
 
   def direction_to(actor)
