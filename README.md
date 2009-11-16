@@ -15,7 +15,7 @@ _Special thanks goes to Daniel Bogan for the amazing sprites! Also, thank you to
  3. Install gems: `gem install redis unicorn sinatra json uuid rest-client gosu`
  4. Start Redis: `redis-server /etc/redis.conf`
  5. Start the example robot: `cd client ; unicorn -p 4567`
- 6. Start the UI: `cd ui ; ui.rb`
+ 6. Start the UI: `cd ui ; ruby ui.rb`
  7. Start the server: `cd server ; ruby server.rb`
 
 ## Writing your own Robot
