@@ -104,6 +104,10 @@ class Robot < Actor
     raise ArgumentError unless yield(arg)
   end
 
+  def to_hash
+    super.merge :energy => energy
+  end
+
   def damage
     30 + rand(0,30)
   end

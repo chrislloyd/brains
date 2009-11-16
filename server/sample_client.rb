@@ -17,10 +17,6 @@ helpers do
     [-1,1][rand(2)]
   end
 
-  def rand_dir
-    env['dir'] + 10
-  end
-
   def direction_to(actor)
     dx = env['x'] - actor['x']
     dy = env['y'] - actor['y']
@@ -35,7 +31,7 @@ post '/' do
 
   if rand(4) == 0
     if env['visible'].empty?
-      json :action => 'turn', :dir => rand_dir
+      json :action => 'turn', :dir => (env['dir'] + 10)
     else
       dir = direction_to(env['visible'].first)
       if (dir - env['dir']).abs < 10
