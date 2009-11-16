@@ -42,17 +42,7 @@ class World
   end
 
   def current_environment_for(actor)
-    case actor
-    when Zombie
-      {:visible => robots.reject {|h| h.dead?}}
-    when Robot
-      {:x => actor.x,
-       :y => actor.y,
-       :dir => actor.dir,
-       :health => actor.health,
-       :visible => actors_visible_for(actor)
-      }
-    end
+    actor.to_hash.merge :visible => actors_visible_for(actor)
   end
 
   def try_to_attack(actor, victim)
@@ -75,7 +65,8 @@ class World
   def actors_visible_for(actor)
     case actor
     when Zombie
-      robots
+      robots.
+        reject {|h| h.dead?}
     else
       actors.
         select { |a| actor.can_see?(a) && a != actor }.

@@ -68,7 +68,9 @@ class Actor
   end
 
   def to_hash
-    {:state => state, :x => x, :y => y, :dir => dir, :type => self.class.name.downcase, :health => health, :decay => decay}
+    {:state => state, :x => x, :y => y, :dir => dir,
+     :type => self.class.name.downcase, :health => health, :decay => decay,
+      :id => id}
   end
 
   def id
