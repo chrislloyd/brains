@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'json'
+require 'dnssd'
 
 require '../server/lib/core_ext'
 
