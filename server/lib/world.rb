@@ -107,7 +107,7 @@ class World
     actors.select {|a| a.dead? }.each {|a| a.decays }
   end
 
-  DECAY_LIMIT = 1000 # ticks
+  DECAY_LIMIT = 500 # ticks
 
   def clean
     actors.reject! {|a| a.decay > DECAY_LIMIT && db.delete(a.id) }
