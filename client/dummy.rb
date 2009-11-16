@@ -1,7 +1,7 @@
 require 'sinatra'
 require 'json'
 
-require 'lib/core_ext'
+require '../server/lib/core_ext'
 
 helpers do
   def json(obj)
