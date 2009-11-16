@@ -3,16 +3,16 @@ class Zombie < Actor
   def think(env)
     dinner = env[:visible].find {|r| can_attack?(r)}
 
-    # if rand(0,3) == 0
+    if rand(0,3) == 0
       if dinner
         bite(dinner)
       else
         self.target = find_target(env[:visible]) if needs_target?
         move_to(target)
       end
-    # else
-      # rest!
-    # end
+    else
+      rest!
+    end
   rescue World::SteppingOnToesError
     rest!
   end
