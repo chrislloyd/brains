@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+require 'brains/cli'
+
+case ARGV.first
+when 'new'
+  Brains.make(ARGV[1]).magic!
+when 'serve'
+  Brains.serve!
+  break
+else
+  abort 'usage: brains new|serve <brain>'
+end
