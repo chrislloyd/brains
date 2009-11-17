@@ -11,19 +11,19 @@ helpers do
     obj.to_json
   end
 
-  def direction_to(x1, y1, x2, y2, y)
+  def direction_to(x1, y1, x2, y2)
     (Math.atan2(x1-x2, y1-y2).to_deg + 180) % 360
   end
 
   def roll_dice(sides=6)
     rand(sides).zero?
   end
- 
+
   def rand_x
     [-1,1][rand(2)]
   end
 
-  alias :rand_y, :rand_x
+  alias :rand_y :rand_x
 
   def idle!
     json :action => :idle

@@ -1,5 +1,5 @@
 class Brains
   def self.version
-    '0.0.1'.freeze
+    File.read(libdir('..','VERSION')).freeze
   end
 end

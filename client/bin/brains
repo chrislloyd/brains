@@ -1,20 +1,17 @@
 #!/usr/bin/env ruby
 require 'brains'
 
-def usage
-  abort 'usage: brains new|serve <brain>'
-end
-
-cmd, brain_dir = ARGV
+cmd, path, *flags = ARGV
 
 case cmd
 when 'new'
-  usage unless brain_dir
-  Brains.make(brain_dir)
+  abort Brains.usage unless path
+  Brains.make(path)
 when 'serve'
-  Brains.serve!
+  abort Brains.usage unless path
+  Brains.serve(path)
 when 'version'
   puts Brains.version
 else
-  usage
+  abort Brains.usage
 end
