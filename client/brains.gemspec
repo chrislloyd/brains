@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{brains}
-  s.version = "0.0.2"
+  s.version = "0.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Chris Lloyd"]
@@ -14,9 +14,17 @@ Gem::Specification.new do |s|
   s.description = %q{Get some Brains!}
   s.email = %q{christopher.lloyd@gmail.com}
   s.executables = ["brains"]
-  s.extra_rdoc_files = [
-    "LICENSE",
-     "README.rdoc"
+  s.files = [
+    "Rakefile",
+     "VERSION",
+     "bin/brains",
+     "brains.gemspec",
+     "lib/brains.rb",
+     "lib/brains/cli.rb",
+     "lib/brains/helpers.rb",
+     "lib/brains/version.rb",
+     "templates/brain.rb.erb",
+     "templates/config.ru.erb"
   ]
   s.homepage = %q{http://github.com/chrislloyd/brains}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -29,15 +37,9 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<pixii>, [">= 0.1.6"])
-      s.add_runtime_dependency(%q<dnssd>, [">= 1.3.1"])
     else
-      s.add_dependency(%q<pixii>, [">= 0.1.6"])
-      s.add_dependency(%q<dnssd>, [">= 1.3.1"])
     end
   else
-    s.add_dependency(%q<pixii>, [">= 0.1.6"])
-    s.add_dependency(%q<dnssd>, [">= 1.3.1"])
   end
 end
 
