@@ -72,7 +72,14 @@ class Actor
   def window
     self.class.window
   end
-
+  
+  def zombie?
+    data['type'] == 'zombie'
+  end
+  
+  def method_missing(method_name, *args)
+    data[method_name.to_s]
+  end
 end
 
 class Window < Gosu::Window
@@ -87,6 +94,7 @@ class Window < Gosu::Window
     Actor.window = self
     @grass = Gosu::Image.new(self, 'tiles/grass.png', true)
     @shrubbery = Gosu::Image.new(self, 'tiles/shrubbery.png', true)
+    @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
   end
 
   def update
@@ -101,6 +109,7 @@ class Window < Gosu::Window
   def draw
     draw_scenery
     actors.each {|a| a.draw }
+    draw_text
   end
 
   def button_down(id)
@@ -137,6 +146,16 @@ class Window < Gosu::Window
     end
   end
 
+  def draw_text
+    brainbots.each do |bb|
+      health = bb.health > 0 ? bb.health : "DEAD"
+      @font.draw("#{bb.name}: #{health}", 10, 10, 10, 1.0, 1.0, 0xffff0000)
+    end
+  end
+  
+  def brainbots
+    actors.reject { |a| a.zombie? }
+  end
 end
 
 window = Window.new

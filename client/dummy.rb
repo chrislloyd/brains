@@ -44,3 +44,7 @@ post '/' do
     json :action => 'idle'
   end
 end
+
+post '/info' do
+  json :name => 'dummy'
+end

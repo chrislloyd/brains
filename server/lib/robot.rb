@@ -5,7 +5,7 @@ class Robot < Actor
   MAX_RESPONSE_LENGTH = 256
   VALID_ACTIONS = %w(idle move attack turn)
 
-  attr_accessor :brain
+  attr_accessor :brain, :name
 
   def self.place(width, height)
     x_variance = width * 0.1
@@ -17,6 +17,8 @@ class Robot < Actor
 
   def self.new_with_brain(url)
     returning(new) do |h|
+      info = RestClient.post "#{url}/info", :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+      h.name = JSON.parse(info)['name']
       h.brain = url
     end
   end
@@ -105,7 +107,7 @@ class Robot < Actor
   end
 
   def to_hash
-    super.merge :energy => energy
+    super.merge({:name => name, :energy => energy})
   end
 
   def damage
