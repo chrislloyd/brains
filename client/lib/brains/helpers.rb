@@ -18,7 +18,7 @@ helpers do
   def roll_dice(sides=6)
     rand(sides).zero?
   end
-
+ 
   def rand_x
     [-1,1][rand(2)]
   end

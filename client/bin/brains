@@ -1,12 +1,20 @@
 #!/usr/bin/env ruby
-require 'brains/cli'
+require 'brains'
 
-case ARGV.first
+def usage
+  abort 'usage: brains new|serve <brain>'
+end
+
+cmd, brain_dir = ARGV
+
+case cmd
 when 'new'
-  Brains.make(ARGV[1]).magic!
+  usage unless brain_dir
+  Brains.make(brain_dir)
 when 'serve'
   Brains.serve!
-  break
+when 'version'
+  puts Brains.version
 else
-  abort 'usage: brains new|serve <brain>'
+  usage
 end
