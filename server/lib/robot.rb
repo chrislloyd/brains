@@ -18,7 +18,7 @@ class Robot < Actor
   def self.new_with_brain(url)
     returning(new) do |h|
       info = RestClient.post "#{url}/info", :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
-      h.name = JSON.parse(info)['name']
+      h.name = (JSON.parse(info)['name'] || '').to_s
       h.brain = url
     end
   end

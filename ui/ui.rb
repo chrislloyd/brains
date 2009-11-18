@@ -12,7 +12,7 @@ def db
 end
 
 class ZIndex
-  LAYERS = [:world, :dead, :robot, :zombie]
+  LAYERS = [:world, :dead, :robot, :zombie, :overlay]
 
   def self.for(type); LAYERS.index(type) end
 end
@@ -32,14 +32,18 @@ class Actor
     end
   end
 
+  def self.font
+    @font ||= Gosu::Font.new(window, Gosu::default_font_name, 12)
+  end
+
   def self.new_from_string(string)
     returning(new) do |a|
-      a.data = string
+      a.data_from_string(string)
     end
   end
 
-  def data=(json)
-    @data = JSON.parse(json)
+  def data_from_string(string)
+    @data = JSON.parse(string)
   end
 
   def image
@@ -55,6 +59,41 @@ class Actor
 
       window.draw_line(x, y, 0x00FF0000, x2, y2, 0x99FF0000)
     end
+
+    draw_health if robot?
+  end
+
+  def font
+    self.class.font
+  end
+
+  def draw_health
+    label = data['name']
+    label += " (#{data['health']})" unless dead?
+
+    label_width = font.text_width(label)
+    overlay_x = x - label_width /2
+    overlay_y = y - 30
+
+    bg_color = 0x33000000
+
+    ldim = {
+      :left => overlay_x -2,
+      :top => overlay_y -2,
+      :right => (x + label_width/2) + 2,
+      :bottom => overlay_y + 14
+    }
+
+    window.draw_quad(
+      ldim[:left], ldim[:top], bg_color,
+      ldim[:right], ldim[:top], bg_color,
+      ldim[:right], ldim[:bottom], bg_color,
+      ldim[:left], ldim[:bottom], bg_color,
+      ZIndex.for(:overlay)
+    )
+
+    font.draw(label, overlay_x, overlay_y+1, ZIndex.for(:overlay), 1.0, 1.0, 0x99FFFFFF)
+    font.draw(label, overlay_x, overlay_y, ZIndex.for(:overlay), 1.0, 1.0, 0xFF000000)
   end
 
   def x
@@ -72,13 +111,17 @@ class Actor
   def window
     self.class.window
   end
-  
-  def zombie?
-    data['type'] == 'zombie'
+
+  def robot?
+    data['type'] == 'robot'
   end
-  
+
+  def dead?
+    data['state'] == 'dead'
+  end
+
   def method_missing(method_name, *args)
-    data[method_name.to_s]
+    data.has_key?(method_name.to_s) ? data[method_name.to_s] : super
   end
 end
 
@@ -94,7 +137,6 @@ class Window < Gosu::Window
     Actor.window = self
     @grass = Gosu::Image.new(self, 'tiles/grass.png', true)
     @shrubbery = Gosu::Image.new(self, 'tiles/shrubbery.png', true)
-    @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
   end
 
   def update
@@ -109,14 +151,13 @@ class Window < Gosu::Window
   def draw
     draw_scenery
     actors.each {|a| a.draw }
-    draw_text
   end
 
   def button_down(id)
     close if id == Gosu::Button::KbEscape
   end
 
-  # private
+# private
 
   def tile_positions
     w, h = @grass.width, @grass.height
@@ -146,16 +187,6 @@ class Window < Gosu::Window
     end
   end
 
-  def draw_text
-    brainbots.each do |bb|
-      health = bb.health > 0 ? bb.health : "DEAD"
-      @font.draw("#{bb.name}: #{health}", 10, 10, 10, 1.0, 1.0, 0xffff0000)
-    end
-  end
-  
-  def brainbots
-    actors.reject { |a| a.zombie? }
-  end
 end
 
 window = Window.new
