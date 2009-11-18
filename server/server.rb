@@ -18,12 +18,14 @@ db.flush_db
 # TODO Have a seperate thread which checks bonjour
 # When a remote is found, send a verification code
 
+world.add(Robot.new_with_brain('http://localhost:4567'))
+
 loop do
   world.tick!
   world.clean
-  
-  
-  world.add_players(bonjour_players)
+
+
+  # world.add_players(bonjour_players)
 
   world.spawn
 

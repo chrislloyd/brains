@@ -120,9 +120,6 @@ class Actor
     data['state'] == 'dead'
   end
 
-  def method_missing(method_name, *args)
-    data.has_key?(method_name.to_s) ? data[method_name.to_s] : super
-  end
 end
 
 class Window < Gosu::Window
