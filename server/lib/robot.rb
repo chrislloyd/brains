@@ -45,6 +45,8 @@ class Robot < Actor
     update! response
   rescue RestClient::Exception, ArgumentError
     rest!
+  rescue Errno::ECONNREFUSED
+    kill!
   end
 
   def normalize_response(response)
