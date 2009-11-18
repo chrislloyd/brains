@@ -25,7 +25,7 @@ helpers do
 
   alias :rand_y :rand_x
 
-  def idle!
+  def rest!
     json :action => :idle
   end
 
