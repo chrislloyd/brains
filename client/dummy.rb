@@ -45,6 +45,6 @@ post '/' do
   end
 end
 
-post '/info' do
-  json :name => 'dummy'
+get '/name/?' do
+  'dummy'
 end

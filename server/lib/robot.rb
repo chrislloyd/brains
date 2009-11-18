@@ -5,7 +5,7 @@ class Robot < Actor
   MAX_RESPONSE_LENGTH = 256
   VALID_ACTIONS = %w(idle move attack turn)
 
-  attr_accessor :brain, :name
+  attr_accessor :brain
 
   def self.place(width, height)
     x_variance = width * 0.1
@@ -17,10 +17,14 @@ class Robot < Actor
 
   def self.new_with_brain(url)
     returning(new) do |h|
-      info = RestClient.post "#{url}/info", :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
-      h.name = (JSON.parse(info)['name'] || '').to_s
       h.brain = url
     end
+  end
+
+  def name
+    @name ||= RestClient.get "#{brain}/name", :timeout => BRAIN_TIMEOUT, :open_timeout => BRAIN_TIMEOUT
+  rescue
+    @name ||= 'Anon'
   end
 
   def initialize
