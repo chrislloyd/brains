@@ -60,7 +60,7 @@ class Actor
       window.draw_line(x, y, 0x00FF0000, x2, y2, 0x99FF0000)
     end
 
-    draw_health if robot?
+    draw_health if robot? && !dead?
   end
 
   def font
@@ -68,8 +68,7 @@ class Actor
   end
 
   def draw_health
-    label = data['name']
-    label += " (#{data['health']})" unless dead?
+    label = "#{data['name']} (#{data['health']})"
 
     label_width = font.text_width(label)
     overlay_x = x - label_width /2
