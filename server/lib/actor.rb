@@ -1,19 +1,9 @@
 require 'uuid'
 
-module Mortality
-  attr_accessor :health
-
-  def hurt(amount)
-    (self.health <= amount) ? kill! : self.health -= amount
-  end
-end
-
-
 class Actor
   include States
-  include Mortality
 
-  attr_accessor :x, :y, :dir, :dead_time
+  attr_accessor :x, :y, :dir, :health, :decay
 
   states :idle, :moving, :turning, :attacking, :dead
 
@@ -22,7 +12,11 @@ class Actor
     self.decay = 0
   end
 
-  def rest!
+  def id
+    @id ||= UUID.new.generate
+  end
+
+  def rest
     changes :from => being_alive, :to => :idle
   end
 
@@ -31,7 +25,8 @@ class Actor
     changes :from => being_alive, :to => :moving
   end
 
-  def attack!
+  def attack
+    world.attack_from(self)
     changes :from => being_alive, :to => :attacking
   end
 
@@ -45,26 +40,24 @@ class Actor
     changes :from => being_alive, :to => :dead
   end
 
-  def distance_to(actor)
-    distance(actor.x, actor.y)
-  end
-
   def dir=(dir)
     @dir = dir % 360
   end
 
-  attr_accessor :decay
+  def hurt(amount)
+    (self.health <= amount) ? kill! : self.health -= amount
+  end
 
   def decays
     self.decay += 1
   end
 
-  def distance(x,y)
-    Math.sqrt((x - self.x)**2 + (y-self.y)**2)
+  def can_see?(actor)
+    self != actor && in_cone?(actor, 60, eyesight)
   end
 
-  def being_alive
-    [:idle, :moving, :turning, :attacking]
+  def can_attack?(victim)
+    self != victim && !victim.dead? && in_cone?(victim, 2, range)
   end
 
   def to_hash
@@ -73,27 +66,30 @@ class Actor
       :id => id}
   end
 
-  def id
-    @id ||= UUID.new.generate
+  def to_json
+    to_hash.to_json
+  end
+
+# private
+
+  def being_alive
+    [:idle, :moving, :turning, :attacking]
+  end
+
+  def distance(x,y)
+    Math.sqrt((x - self.x)**2 + (y-self.y)**2)
+  end
+
+  def distance_to(actor)
+    distance(actor.x, actor.y)
   end
 
   def direction_to(actor)
-    dx = x - actor.x
-    dy = y - actor.y
-
-    (Math.atan2(dx, dy).to_deg + 180) % 360
+    (Math.atan2(x - actor.x, y - actor.y).to_deg + 180) % 360
   end
 
-  def can_see?(actor)
-    in_range?(actor, 60, eyesight)
-  end
-
-  def can_attack?(victim)
-    self != victim && !victim.dead? && in_range?(victim, 10, attack_range)
-  end
-
-  def in_range?(victim, scope, dist_limit)
-    (direction_to(victim) - dir).abs < scope && distance_to(victim) <= dist_limit
+  def in_cone?(obj, alpha, r)
+    (direction_to(obj)-dir).abs < alpha && distance_to(obj) <= r
   end
 
 end
