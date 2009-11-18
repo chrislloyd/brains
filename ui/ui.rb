@@ -92,7 +92,6 @@ class Actor
       ZIndex.for(:overlay)
     )
 
-    font.draw(label, overlay_x, overlay_y+1, ZIndex.for(:overlay), 1.0, 1.0, 0x99FFFFFF)
     font.draw(label, overlay_x, overlay_y, ZIndex.for(:overlay), 1.0, 1.0, 0xFF000000)
   end
 
