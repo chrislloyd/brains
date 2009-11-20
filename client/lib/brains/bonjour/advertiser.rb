@@ -9,7 +9,10 @@ class Advertiser
   end
   
   def go!
-    register_app
+    loop do
+      register_app
+      sleep 1
+    end
   end
   
   private
