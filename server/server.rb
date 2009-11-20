@@ -4,7 +4,7 @@ require 'brains'
 require 'redis'
 
 require File.dirname(__FILE__) + "/lib/browser"
-require File.dirname(__FILE__) + "/lib/heros"
+require File.dirname(__FILE__) + "/lib/heroes"
 
 def db
   @db ||= Redis.new
@@ -20,11 +20,11 @@ db.flush_db
 # TODO Have a seperate thread which checks bonjour
 # When a remote is found, send a verification code
 
-heros = Heros.new
-heros.watch!
+heroes = Heroes.new
+heroes.watch!
 
 loop do
-  heros.update!
+  heroes.update!
   
   world.tick!
   world.clean

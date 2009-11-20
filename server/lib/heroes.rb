@@ -1,4 +1,4 @@
-class Heros
+class Heroes
   attr_accessor :clients, :browser
   
   def initialize
