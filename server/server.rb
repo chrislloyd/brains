@@ -34,6 +34,11 @@ loop do
     end
   end
   
+  known_hosts = @browser.replies.map { |r| r.target }
+  brain_clients = brain_clients.select do |client|
+    known_hosts.include? client
+  end
+  
   world.tick!
   world.clean
 

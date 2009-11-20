@@ -44,7 +44,7 @@ class Robot < Actor
     valid_response = validate(response)
     action = parse_action(valid_response)
     update(action)
-  rescue RestClient::Exception, ActionParseError
+  rescue
     kill!
   end
 
