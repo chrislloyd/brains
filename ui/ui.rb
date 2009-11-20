@@ -125,7 +125,7 @@ class Window < Gosu::Window
   attr_accessor :grid, :actors
 
   def initialize
-    super(640, 480, false)
+    super(800, 600, true)
     self.caption = 'Brains'
     self.grid = 1
     self.actors = []

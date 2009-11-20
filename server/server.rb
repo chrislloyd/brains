@@ -3,15 +3,15 @@ $LOAD_PATH << 'lib'
 require 'brains'
 require 'redis'
 
-require File.dirname(__FILE__) + "/lib/browser"
-require File.dirname(__FILE__) + "/lib/heroes"
+require 'browser'
+require 'heroes'
 
 def db
   @db ||= Redis.new
 end
 
 # Really bizarre bug where world was getting reset...
-$world = World.new(640, 480)
+$world = World.new(800, 600)
 def world; $world end
 
 # TODO Perhaps remove this?
@@ -25,12 +25,9 @@ heroes.watch!
 
 loop do
   heroes.update!
-  
+
   world.tick!
   world.clean
-
-
-  # world.add_players(bonjour_players)
 
   world.spawn
 
