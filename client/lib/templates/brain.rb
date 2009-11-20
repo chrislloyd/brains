@@ -1,6 +1,6 @@
 require 'brains/helpers'
 
-brain :name => 'Scaredy Cat'
+# brain :name => 'Scaredy Cat'
 
 post '/' do
   if roll_dice(3)

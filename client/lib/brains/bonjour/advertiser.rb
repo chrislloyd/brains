@@ -14,7 +14,7 @@ class Advertiser
   
   private
     def register_app
-      STDOUT.puts "Registering #{Bananajour.web_uri}"
+      STDOUT.puts "Registering app"
       tr = DNSSD::TextRecord.new
       tr["name"] = name
       DNSSD.register("#{name}'s brain", "_http._tcp,_brains", nil, 4567, tr) {}
