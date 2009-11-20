@@ -1,7 +1,7 @@
 class World
 
   MIN_ZOMBIES = 10
-  MAX_ZOMBIES = 60
+  MAX_ZOMBIES = 30
 
   PERIOD = 10000
   DECAY  = 500 # ticks
