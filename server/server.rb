@@ -11,13 +11,13 @@ def world; $world end
 
 def production?; ENV['ENVIRONMENT'] == 'production' end
 
-# TODO Perhaps remove this?
 db.flush_db
 
-# TODO Have a seperate thread which checks bonjour
-# When a remote is found, send a verification code
-
-if production?
+# If you are running the server on your local machine, run your bot at
+#  localhost:4567
+unless production?
+  world.add(Robot.new_with_brain('http://localhost:4567'))
+else
   require 'browser'
   require 'heroes'
   heroes = Heroes.new

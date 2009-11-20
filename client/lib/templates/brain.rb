@@ -1,9 +1,8 @@
-require 'rubygems' # Just for Chris!
 require 'sinatra'
-require 'brain'
 require 'brains/helpers'
 
 brain :name => "Your name here"
+
 post '/' do
   if roll_dice(3)
     case rand(3)
