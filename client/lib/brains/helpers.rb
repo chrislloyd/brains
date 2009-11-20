@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'json'
+require 'brains/bonjour/advertiser'
 
 helpers do
   def env
