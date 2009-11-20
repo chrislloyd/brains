@@ -29,7 +29,7 @@ loop do
     host = reply.target
     unless brain_clients.include?(host)
       puts "Adding client #{host}"
-      world.add(Robot.new_with_brain("http://#{host}:4567"))
+      world.add(Robot.new_with_brain("http://#{host}:4567", host))
       brain_clients << host
     end
   end

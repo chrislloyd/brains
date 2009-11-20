@@ -16,7 +16,7 @@ class Robot < Actor
     :attack => -100
   }
 
-  attr_accessor :brain, :energy
+  attr_accessor :brain, :energy, :name
 
   def self.place(width, height)
     x_variance = width * 0.1
@@ -26,9 +26,11 @@ class Robot < Actor
     [x, y]
   end
 
-  def self.new_with_brain(url)
+  def self.new_with_brain(url, name)
     returning(new) do |h|
       h.brain = RestClient::Resource.new(url, :timeout => TIMEOUT, :open_timeout => TIMEOUT)
+      h.name = name
+      h.brain
     end
   end
 
@@ -44,14 +46,6 @@ class Robot < Actor
     update(action)
   rescue RestClient::Exception, ActionParseError
     kill!
-  end
-
-  def name
-    @name ||= begin
-      validate(brain['name'].get)
-    rescue RestClient::Exception
-      'Anon'
-    end
   end
 
   def decays
