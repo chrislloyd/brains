@@ -1,23 +1,18 @@
 require 'brains/helpers'
 
-helpers do
-
-  def quiver!
-    if roll_dice(3)
-      if roll_dice(2)
-        move! rand_x, rand_y
-      else
-        turn! rand(360)
-      end
-    else
-      rest!
-    end
-  end
-
-end
+get('/name') {'Scaredy Cat'}
 
 post '/' do
-  quiver!
+  if roll_dice(3)
+    case rand(3)
+    when 0
+      move! rand_x, rand_y
+    when 1
+      turn! rand(360)
+    when 2
+      shoot!
+    end
+  else
+    rest!
+  end
 end
-
-get('/name') {'Scaredy Cat'}
