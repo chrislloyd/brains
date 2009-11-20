@@ -9,9 +9,11 @@ class Advertiser
   end
   
   def go!
-    loop do
-      register_app
-      sleep 1
+    Thread.new do
+      loop do
+        register_app
+        sleep 1
+      end
     end
   end
   
