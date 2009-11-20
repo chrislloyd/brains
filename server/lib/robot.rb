@@ -48,7 +48,7 @@ class Robot < Actor
         action = parse_action(valid_response)
         update(action)
       end
-    rescue
+    rescue Timeout::Error, StandardError
       kill!
     end
   end

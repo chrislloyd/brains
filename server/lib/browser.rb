@@ -3,7 +3,7 @@ require 'dnssd'
 require 'thread'
 require 'timeout'
 
-Thread.abort_on_exception = true
+# Thread.abort_on_exception = true
 
 # Generic bonjour browser
 #
