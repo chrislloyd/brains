@@ -7,5 +7,3 @@ require 'actor'
 require 'zombie'
 require 'robot'
 require 'world'
-
-
