@@ -1,4 +1,5 @@
 require 'rest_client'
+require 'timeout'
 
 class Robot < Actor
 
@@ -40,10 +41,12 @@ class Robot < Actor
   end
 
   def think(env)
-    response = brain.post(env.to_json)
-    valid_response = validate(response)
-    action = parse_action(valid_response)
-    update(action)
+    Timeout::timeout(1) do
+      response = brain.post(env.to_json)
+      valid_response = validate(response)
+      action = parse_action(valid_response)
+      update(action)
+    end
   rescue
     kill!
   end
