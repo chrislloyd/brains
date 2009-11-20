@@ -1,4 +1,5 @@
 require 'rest_client'
+require 'timeout'
 
 class Robot < Actor
 
@@ -18,7 +19,7 @@ class Robot < Actor
 
   SPAWN_BOX = 0.8 # %
 
-  attr_accessor :brain, :energy
+  attr_accessor :brain, :energy, :name
 
   def self.place(width, height)
     x_variance = width * (SPAWN_BOX/2)
@@ -28,9 +29,11 @@ class Robot < Actor
     [x, y]
   end
 
-  def self.new_with_brain(url)
+  def self.new_with_brain(url, name)
     returning(new) do |h|
       h.brain = RestClient::Resource.new(url, :timeout => TIMEOUT, :open_timeout => TIMEOUT)
+      h.name = name
+      h.brain
     end
   end
 
@@ -40,19 +43,15 @@ class Robot < Actor
   end
 
   def think(env)
-    response = brain.post(env.to_json)
-    valid_response = validate(response)
-    action = parse_action(valid_response)
-    update(action)
-  rescue RestClient::Exception, ActionParseError
-    kill!
-  end
-
-  def name
-    @name ||= begin
-      validate(brain['name'].get)
-    rescue RestClient::Exception
-      'Anon'
+    begin
+      Timeout::timeout(1) do
+        response = brain.post(env.to_json)
+        valid_response = validate(response)
+        action = parse_action(valid_response)
+        update(action)
+      end
+    rescue Timeout::Error, StandardError
+      kill!
     end
   end
 

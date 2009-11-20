@@ -2,7 +2,9 @@ $LOAD_PATH << 'lib'
 
 require 'brains'
 require 'redis'
-require 'dnssd'
+
+require File.dirname(__FILE__) + "/lib/browser"
+require File.dirname(__FILE__) + "/lib/heroes"
 
 def db
   @db ||= Redis.new
@@ -18,9 +20,12 @@ db.flush_db
 # TODO Have a seperate thread which checks bonjour
 # When a remote is found, send a verification code
 
-world.add(Robot.new_with_brain('http://localhost:4567'))
+heroes = Heroes.new
+heroes.watch!
 
 loop do
+  heroes.update!
+  
   world.tick!
   world.clean
 

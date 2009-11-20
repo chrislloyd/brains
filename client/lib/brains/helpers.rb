@@ -2,6 +2,10 @@ require 'sinatra'
 require 'json'
 require 'brains/bonjour/advertiser'
 
+def brain(options)
+  Advertiser.new(options).go!
+end
+
 helpers do
   def env
     @payload ||= JSON.parse(request.body.read)
