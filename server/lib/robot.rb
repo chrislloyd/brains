@@ -35,6 +35,7 @@ class Robot < Actor
   def initialize
     super
     self.energy = 100
+    self.score = 0
   end
 
   def think(env)
@@ -59,7 +60,7 @@ class Robot < Actor
   end
 
   def to_hash
-    super.merge({:name => name, :energy => energy})
+    super.merge({:name => name, :energy => energy, :score => score})
   end
 
 # vars

@@ -31,7 +31,7 @@ class Brains
       # Receive token
       # Set environment variables BRAIN_ID to id and BRAIN_TOKEN to token
 
-      webserver = fork {exec 'unicorn -p 4567'}
+      webserver = fork {exec 'rackup -p 4567'}
 
       ['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGABRT', 'SIGKILL', 'SIGTERM'].each do |signal|
         trap signal do

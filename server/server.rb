@@ -16,7 +16,7 @@ def world; $world end
 db.flush_db
 
 # TODO Have a seperate thread which checks bonjour
-# When a remote is found, send a verification code
+# When a remote is found, send a verification cod e
 
 world.add(Robot.new_with_brain('http://localhost:4567'))
 
