@@ -200,7 +200,7 @@ class Window < Gosu::Window
   end
   
   def draw_scores
-    humans.each_with_index do |human, i|
+    humans.select { |h| !h.dead? }.sort_by {|h| h.score}.reverse.each_with_index do |human, i|
       font.draw("#{human.name}: #{human.score}", 0, i*20, ZIndex.for(:overlay), 1.0, 1.0, 0xFF000000)
     end
   end

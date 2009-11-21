@@ -60,7 +60,9 @@ class Robot < Actor
       world.mutex.synchronize { update(action) }
     end
   rescue Timeout::Error
-    kill!
+    logger.info("#{name} timed out")
+    hurt(10)
+    rest
   end
 
   def decays

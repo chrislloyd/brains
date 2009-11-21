@@ -18,7 +18,7 @@ class Heroes
   def add_clients
     browser.replies.each do |reply|
       host = reply.target
-      add_client host unless clients.include?(host)
+      add_client(host) unless clients.include?(host)
     end
   end
 
@@ -31,7 +31,6 @@ class Heroes
 
   def clean_disconnected_hosts
     self.clients = humans.collect {|h| h.name}
-    p clients
   end
 
   def known_hosts
