@@ -44,7 +44,7 @@ class Robot < Actor
 
   def think(env)
     begin
-      Timeout::timeout(1) do
+      Timeout::timeout(2) do
         response = brain.post(env.to_json)
         valid_response = validate(response)
         action = parse_action(valid_response)
