@@ -12,7 +12,7 @@ class Heroes
 
   def update!
     add_clients
-    clean_disconnected_hosts
+    # clean_disconnected_hosts
   end
 
   def add_clients
