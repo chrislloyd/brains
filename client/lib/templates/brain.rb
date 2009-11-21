@@ -1,7 +1,8 @@
 require 'sinatra'
 require 'brains/helpers'
 
-brain :name => "Your name here"
+def production?; ENV['ENVIRONMENT'] == 'production' end
+brain :name => "lovebot", :bonjour => production?
 
 post '/' do
   if roll_dice(3)

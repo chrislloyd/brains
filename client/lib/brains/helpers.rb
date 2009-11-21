@@ -2,7 +2,7 @@ require 'json'
 require 'brains/bonjour/advertiser'
 
 def brain(options)
-  Advertiser.new(options).go!
+  Advertiser.new(options).go! if options.delete(:bonjour)
 end
 
 helpers do
