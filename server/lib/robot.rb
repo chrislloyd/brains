@@ -17,12 +17,14 @@ class Robot < Actor
     :attack => -100
   }
 
+  SPAWN_BOX = 0.8 # %
+
   attr_accessor :brain, :energy, :name
 
   def self.place(width, height)
-    x_variance = width * 0.1
+    x_variance = width * (SPAWN_BOX/2)
     x = rand(-x_variance, x_variance) + width / 2
-    y_variance = height * 0.1
+    y_variance = height * (SPAWN_BOX/2)
     y = rand(-y_variance, y_variance) + height / 2
     [x, y]
   end
