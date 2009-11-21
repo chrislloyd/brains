@@ -40,6 +40,7 @@ class Robot < Actor
   def initialize
     super
     self.energy = 100
+    self.score = 0
   end
 
   def think(env)
@@ -59,7 +60,7 @@ class Robot < Actor
   end
 
   def to_hash
-    returning(super.merge({:name => name, :energy => energy})) do |h|
+    returning(super.merge({:name => name, :energy => energy, :score => score})) do |h|
       h[:exception] = exception if exception
     end
   end

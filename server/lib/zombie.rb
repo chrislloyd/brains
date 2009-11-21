@@ -57,7 +57,7 @@ class Zombie < Actor
   end
 
   def damage; 2 end
-  def range; 10 end
+  def range; 20 end
   def eyesight; 10 end
 
 end

@@ -3,13 +3,14 @@ require 'uuid'
 class Actor
   include States
 
-  attr_accessor :x, :y, :dir, :health, :decay
+  attr_accessor :x, :y, :dir, :health, :decay, :score
 
   states :idle, :moving, :turning, :attacking, :dead
 
   def initialize
     self.state, self.x, self.y, self.dir, self.health = :idle, 0, 0, 0, 100
     self.decay = 0
+    self.score = 0
   end
 
   def id
@@ -26,7 +27,7 @@ class Actor
   end
 
   def attack
-    world.attack_from(self)
+    self.score += world.attack_from(self)
     changes :from => being_alive, :to => :attacking
   end
 

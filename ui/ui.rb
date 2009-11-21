@@ -67,6 +67,10 @@ class Actor
     self.class.font
   end
 
+  def name
+    data['name']
+  end
+
   def draw_health
     label = "#{data['name']} (#{data['health']})"
 
@@ -117,6 +121,10 @@ class Actor
   def dead?
     data['state'] == 'dead'
   end
+  
+  def score
+    data['score']
+  end
 
 end
 
@@ -133,6 +141,10 @@ class Window < Gosu::Window
     @grass = Gosu::Image.new(self, 'tiles/grass.png', true)
     @shrubbery = Gosu::Image.new(self, 'tiles/shrubbery.png', true)
   end
+  
+  def font
+    @font ||= Gosu::Font.new(self, Gosu::default_font_name, 12)
+  end
 
   def update
     actors.clear
@@ -146,6 +158,7 @@ class Window < Gosu::Window
   def draw
     draw_scenery
     actors.each {|a| a.draw }
+    draw_scores
   end
 
   def button_down(id)
@@ -179,6 +192,16 @@ class Window < Gosu::Window
       row.each do |col|
         col[:tile].draw(col[:x], col[:y], ZIndex.for(:world))
       end
+    end
+  end
+  
+  def humans
+    actors.select {|a| a.robot? }
+  end
+  
+  def draw_scores
+    humans.each_with_index do |human, i|
+      font.draw("#{human.name}: #{human.score}", 0, i*20, ZIndex.for(:overlay), 1.0, 1.0, 0xFF000000)
     end
   end
 
