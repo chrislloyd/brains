@@ -54,7 +54,7 @@ class Robot < Actor
             update(action)
           end
         end
-      rescue Timeout::Error, StandardError
+      rescue Timeout::Error
         kill!
       end
     end
