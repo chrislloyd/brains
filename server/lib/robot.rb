@@ -75,11 +75,6 @@ class Robot < Actor
       h[:exception] = exception if exception
     end
   end
-  
-  def kill!
-    super
-    heroes.remove name
-  end
 
 # vars
 

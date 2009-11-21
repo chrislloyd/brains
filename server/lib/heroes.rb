@@ -12,6 +12,7 @@ class Heroes
 
   def update!
     add_clients
+    delete_dead_clients
   end
 
   def add_clients
@@ -29,8 +30,11 @@ class Heroes
     self.clients << host
     r.run
   end
-
-  def remove(host)
-    clients.delete host
+  
+  def delete_dead_clients
+    world.dead_humans.each do |h|
+      self.clients.delete h.name
+      world.delete h.name
+    end
   end
 end

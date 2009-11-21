@@ -41,6 +41,20 @@ class World
     actors << actor
     place(actor)
   end
+  
+  def humans
+    actors.select { |a| a.is_a? Robot }
+  end
+  
+  def dead_humans
+    humans.select {|h| h.dead?}
+  end
+  
+  def delete(actor_name)
+    actor = actors.detect {|a| a.is_a? Robot and a.name == actor_name}
+    db.delete actor.id
+    actors.delete actor
+  end
 
   def place(actor)
     x, y = actor.class.place(width, height)
