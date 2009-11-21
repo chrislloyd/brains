@@ -49,6 +49,8 @@ class Browser
                   rr.service.stop unless rr.service.stopped?
                 end
               end
+            rescue DNSSD::BadParamError
+              $stderr.puts "Life sux."
             end
           end
         rescue DNSSD::UnknownError
