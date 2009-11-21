@@ -6,6 +6,8 @@ require 'logger'
 
 def db; @db ||= Redis.new end
 
+LOOP_TIME = 1/30.0
+
 # Really bizarre bug where world was getting reset...
 $world = World.new(800, 600)
 def world; $world end
@@ -32,6 +34,7 @@ else
 end
 
 loop do
+  old_time = Time.now
   heroes.update! if production?
 
   world.tick!
@@ -41,5 +44,7 @@ loop do
 
   world.update
   world.save
-  sleep 1/30.0
+
+  loop_time = Time.now - old_time
+  sleep LOOP_TIME - loop_time if loop_time < LOOP_TIME
 end
