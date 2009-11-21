@@ -20,7 +20,7 @@ class Array
 end
 
 class ZIndex
-  LAYERS = [:world, :dead, :robot, :zombie, :tank, :overlay]
+  LAYERS = [:world, :dead, :robot, :norman, :witch, :tank, :overlay]
 
   def self.for(type); LAYERS.index(type) end
 end
@@ -96,6 +96,8 @@ class Actor
   end
 
   def draw
+    puts data['type'], data['state'] unless image
+
     image.draw_rot(x, y, z, data['dir'])
 
     if data['type'] == 'robot' && data['state'] == 'attacking'

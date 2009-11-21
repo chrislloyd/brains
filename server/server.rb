@@ -7,7 +7,7 @@ LOOP_TIME = 1/30.0
 
 loop do
   old_time = Time.now
-  heroes.update! if production?
+  # heroes.update! if env.production?
 
   world.tick!
   world.clean

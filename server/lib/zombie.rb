@@ -1,5 +1,14 @@
 class Zombie < Actor
 
+  def self.clean_writer(*attrs)
+    attrs.each do |attr|
+      instance_eval "def #{attr}(val=nil); val ? @#{attr} = val : @#{attr}; end"
+      define_method(attr) { self.class.send(attr) }
+    end
+  end
+
+  clean_writer :damage, :range, :eyesight, :speed, :initial_health
+
   attr_accessor :target
 
   def self.place(width, height)
@@ -9,6 +18,11 @@ class Zombie < Actor
       :bottom => [rand(-1, width+1), -1],
       :left => [-1, rand(-1, height+1)]
     }.pick
+  end
+
+  def initialize
+    super
+    self.health = initial_health
   end
 
   def think(env)
@@ -55,9 +69,5 @@ class Zombie < Actor
 
     (Math.atan2(dx, dy).to_deg + 180) % 360
   end
-
-  def damage; 5 end
-  def range; 20 end
-  def eyesight; 10 end
 
 end

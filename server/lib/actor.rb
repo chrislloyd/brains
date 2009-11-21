@@ -68,7 +68,7 @@ class Actor
   def to_hash
     {:state => state, :x => x, :y => y, :dir => dir,
      :type => self.class.name.downcase, :health => health, :decay => decay,
-      :id => id}
+     :id => id}
   end
 
   def to_json

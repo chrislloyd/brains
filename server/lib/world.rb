@@ -24,7 +24,7 @@ class World
     self.width, self.height = width, height
     self.actors, self.clock = [], 0
   end
-  
+
   def mutex
     @mutex ||= Mutex.new
   end
@@ -114,7 +114,18 @@ class World
     number_of_new_zombies = Math.max((n_robots * MIN_ZOMBIES) + (Math.sin(clock.to_rad).abs * (MAX_ZOMBIES-MIN_ZOMBIES)).round - n_zombies, 0)
 
     number_of_new_zombies.times do |i|
-      add(Zombie.new)
+      add(pick_zombie.new)
+    end
+  end
+
+  def pick_zombie
+    case rand(100)
+    when 0...5
+      Witch
+    when 5...15
+      Tank
+    else
+      Norman
     end
   end
 
