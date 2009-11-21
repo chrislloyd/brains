@@ -2,6 +2,8 @@ require 'gosu'
 require 'redis'
 require 'json'
 
+require 'pp'
+
 def returning(obj)
   yield obj
   obj
@@ -9,6 +11,12 @@ end
 
 def db
   @redis ||= Redis.new
+end
+
+class Array
+  def pick
+    self[rand(size)]
+  end
 end
 
 class ZIndex
@@ -42,8 +50,45 @@ class Actor
     end
   end
 
+  def self.update_from_string(actor,string)
+    if actor
+      actor.update_from_string(string)
+      actor
+    else
+      new_from_string(string)
+    end
+  end
+
   def data_from_string(string)
     @data = JSON.parse(string)
+  end
+
+  def update_from_string(string)
+    @previous_data = @data
+    data_from_string(string)
+  end
+
+  def changed?(key)
+    @data[key] != @previous_data[key]
+  end
+
+
+  Deaths = [
+    "%s was bitten to death.",
+    "%s was et.",
+    "%s's brains were yummy.",
+    "The bullet bit %s",
+    "Boom! Headchomp! %s!"
+  ]
+
+  def tell_us_the_news(hint=nil)
+    return unless robot?
+
+    if ! @previous_data
+      window.news.add "#{name} joined the apocalypse."
+    elsif data['state'] == 'dead' && changed?('state')
+      window.news.add :death, (Deaths.pick % name)
+    end
   end
 
   def image
@@ -68,14 +113,14 @@ class Actor
   end
 
   def name
-    data['name']
+    @name ||= data['name'].sub(/\.local$/,'')
   end
 
   def draw_health
-    label = "#{data['name'].gsub('.local', '')} (#{data['health']})"
+    label = "#{name} (#{data['health']})"
 
     label_width = font.text_width(label)
-    overlay_x = x - label_width /2
+    overlay_x = x - label_width / 2
     overlay_y = y - 30
 
     bg_color = 0x33000000
@@ -121,44 +166,119 @@ class Actor
   def dead?
     data['state'] == 'dead'
   end
-  
+
   def score
     data['score']
   end
 
 end
 
+class Console
+  attr_reader :buffer
+
+  def initialize(window,x,y,width,height)
+    @window = window
+    @x,@y,@width,@height = x,y,width,height
+    @buffer = []
+    @spacing = 20
+    @limit = 5
+  end
+
+  def add(tag,msg=nil)
+    tag,msg = :normal,tag unless msg
+
+    @buffer << [tag,msg]
+    if @buffer.size > @limit
+      @buffer.shift
+    end
+  end
+
+  def icons(called)
+    @icons ||=  Dir['icons/*.png'].inject({}) do |icons,f|
+      name = File.basename(f,'.png')
+      icons[name.to_sym] = Gosu::Image.new(@window, f, false)
+      icons
+    end
+
+    @icons[called.to_sym]
+  end
+
+  def style(name)
+    @colour = 0xff000000
+    @icon = nil
+
+    case name
+    when :death
+      @colour = 0xffff0000
+      @icon = icons(:death)
+    end
+
+    @icon ||= icons(:robot)
+
+    yield
+  end
+
+  def draw
+    @window.clip_to(@x, @y, @width, @height) do
+      @buffer.reverse.each_with_index do |(tag,msg),i|
+        y = @y + @spacing*i
+        style(tag) do
+          @icon.draw(@x,y, ZIndex.for(:overlay)) if @icon
+          @window.font.draw(msg, @x+20, y, ZIndex.for(:overlay), 1, 1, @colour)
+        end
+      end
+    end
+  end
+
+  # def draw_scores
+  #   humans.each_with_index do |human, i|
+  #     font.draw("#{human.name}: #{human.score}", 0, i*20, ZIndex.for(:overlay), 1.0, 1.0, 0xFF000000)
+  #   end
+  # end
+end
+
 class Window < Gosu::Window
 
-  attr_accessor :grid, :actors
+  attr_accessor :grid, :actors, :news
 
   def initialize
     super(800, 600, false)
+
+    self.news = Console.new(self,0,0,200,600)
+
     self.caption = 'Brains'
     self.grid = 1
-    self.actors = []
+
+    self.actors  = {}
+
     Actor.window = self
-    @grass = Gosu::Image.new(self, 'tiles/grass.png', true)
+    @grass     = Gosu::Image.new(self, 'tiles/grass.png', true)
     @shrubbery = Gosu::Image.new(self, 'tiles/shrubbery.png', true)
   end
-  
+
   def font
     @font ||= Gosu::Font.new(self, Gosu::default_font_name, 12)
   end
 
   def update
-    actors.clear
-    db.keys('*').each do |id|
-      if raw = db[id]
-        actors << Actor.new_from_string(raw)
+    unless $testing
+      keys = db.keys('*')
+
+      keys.each do |id|
+        if raw = db[id]
+          actors[id] = Actor.update_from_string(actors[id],raw)
+          actors[id].tell_us_the_news
+        end
       end
+
+      (actors.keys - keys).each {|key| actors.delete(key)}
     end
   end
 
   def draw
     draw_scenery
-    actors.each {|a| a.draw }
-    draw_scores
+    actors.each {|_,a| a.draw }
+    news.draw
   end
 
   def button_down(id)
@@ -194,11 +314,11 @@ class Window < Gosu::Window
       end
     end
   end
-  
+
   def humans
     actors.select {|a| a.robot? }
   end
-  
+
   def draw_scores
     humans.select { |h| !h.dead? }.sort_by {|h| h.score}.reverse.each_with_index do |human, i|
       font.draw("#{human.name}: #{human.score}", 0, i*20, ZIndex.for(:overlay), 1.0, 1.0, 0xFF000000)
