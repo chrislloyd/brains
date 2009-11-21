@@ -19,7 +19,7 @@ class Robot < Actor
 
   SPAWN_BOX = 0.8 # %
 
-  attr_accessor :brain, :energy, :name
+  attr_accessor :brain, :energy, :name, :exception
 
   def self.place(width, height)
     x_variance = width * (SPAWN_BOX/2)
@@ -43,6 +43,7 @@ class Robot < Actor
   end
 
   def think(env)
+    self.exception = nil
     Timeout::timeout(1) do
       response = brain.post(env.to_json)
       valid_response = validate(response)
@@ -58,7 +59,9 @@ class Robot < Actor
   end
 
   def to_hash
-    super.merge({:name => name, :energy => energy})
+    returning(super.merge({:name => name, :energy => energy})) do |h|
+      h[:exception] = exception if exception
+    end
   end
 
 # vars
@@ -109,7 +112,13 @@ class Robot < Actor
       work(:attack)
       attack
     end
-  rescue World::SteppingOnToesError, ExhaustedError
+  # rescue World::SteppingOnToesError => e, ExhausedError => e
+  #   self.exception = e.name
+  rescue World::SteppingOnToesError
+    self.exception = 'SteppingOnToesError'
+    rest
+  rescue ExhaustedError
+    self.exception = 'ExhaustedError'
     rest
   end
 
