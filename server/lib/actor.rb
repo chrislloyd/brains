@@ -57,6 +57,10 @@ class Actor
     self != actor && in_cone?(actor, 60, eyesight)
   end
 
+  def can_sense?(actor)
+    self != actor && in_cone?(actor, 360, 5)
+  end
+
   def can_attack?(victim)
     self != victim && !victim.dead? && in_cone?(victim, 2, range)
   end
