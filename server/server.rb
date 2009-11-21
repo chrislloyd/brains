@@ -2,6 +2,7 @@ $LOAD_PATH << 'lib'
 
 require 'brains'
 require 'redis'
+require 'logger'
 
 def db; @db ||= Redis.new end
 
@@ -9,7 +10,11 @@ def db; @db ||= Redis.new end
 $world = World.new(800, 600)
 def world; $world end
 
+def logger; Logger.new(File.dirname(__FILE__) + "/../../brains.log"); end
+
 def production?; ENV['ENVIRONMENT'] == 'production' end
+
+logger.info "Starting up"
 
 db.flush_db
 
