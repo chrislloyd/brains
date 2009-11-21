@@ -3,34 +3,32 @@ $LOAD_PATH << 'lib'
 require 'brains'
 require 'redis'
 
-require File.dirname(__FILE__) + "/lib/browser"
-require File.dirname(__FILE__) + "/lib/heroes"
-
-def db
-  @db ||= Redis.new
-end
+def db; @db ||= Redis.new end
 
 # Really bizarre bug where world was getting reset...
-$world = World.new(640, 480)
+$world = World.new(800, 600)
 def world; $world end
 
-# TODO Perhaps remove this?
+def production?; ENV['ENVIRONMENT'] == 'production' end
+
 db.flush_db
 
-# TODO Have a seperate thread which checks bonjour
-# When a remote is found, send a verification cod e
-
-heroes = Heroes.new
-heroes.watch!
+# If you are running the server on your local machine, run your bot at
+#  localhost:4567
+unless production?
+  world.add(Robot.new_with_brain('http://localhost:4567', 'Hans'))
+else
+  require 'browser'
+  require 'heroes'
+  heroes = Heroes.new
+  heroes.watch!
+end
 
 loop do
-  heroes.update!
-  
+  heroes.update! if production?
+
   world.tick!
   world.clean
-
-
-  # world.add_players(bonjour_players)
 
   world.spawn
 

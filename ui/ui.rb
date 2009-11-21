@@ -133,7 +133,7 @@ class Window < Gosu::Window
   attr_accessor :grid, :actors
 
   def initialize
-    super(640, 480, false)
+    super(800, 600, ENV['ENVIRONMENT'] == 'production')
     self.caption = 'Brains'
     self.grid = 1
     self.actors = []

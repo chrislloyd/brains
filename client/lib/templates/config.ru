@@ -1,4 +1,2 @@
-require 'brain'
+load 'brain.rb'
 run Sinatra::Application
-
-set :app_file, 'brain.rb'
