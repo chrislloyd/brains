@@ -1,5 +1,6 @@
 require 'rest_client'
 require 'timeout'
+require 'benchmark'
 
 class Robot < Actor
 
@@ -41,7 +42,7 @@ class Robot < Actor
     Thread.new do
       while true
         think world.current_environment_for(self)
-        sleep 0.1
+        sleep 0.5
       end
     end
   end
