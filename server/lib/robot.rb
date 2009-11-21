@@ -41,7 +41,7 @@ class Robot < Actor
     Thread.new do
       while true
         think world.current_environment_for(self)
-        sleep 1
+        sleep 0.1
       end
     end
   end
