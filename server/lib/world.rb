@@ -24,6 +24,10 @@ class World
     self.width, self.height = width, height
     self.actors, self.clock = [], 0
   end
+  
+  def mutex
+    @mutex ||= Mutex.new
+  end
 
   def zombies
     actors.select {|a| a.is_a?(Zombie)}
@@ -88,7 +92,7 @@ class World
       if a.dead?
         a.decays
       else
-        a.think(current_environment_for(a))
+        a.think(current_environment_for(a)) unless a.is_a? Robot
       end
     end
   end

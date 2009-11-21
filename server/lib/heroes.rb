@@ -24,8 +24,10 @@ class Heroes
 
   def add_client(host)
     puts "Adding client #{host}"
-    world.add(Robot.new_with_brain("http://#{host}:4567", host))
+    r = Robot.new_with_brain("http://#{host}:4567", host)
+    world.add(r)
     self.clients << host
+    r.run
   end
 
   def clean_disconnected_hosts

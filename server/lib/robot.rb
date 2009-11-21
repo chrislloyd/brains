@@ -36,6 +36,15 @@ class Robot < Actor
       h.brain
     end
   end
+  
+  def run
+    Thread.new do
+      while true
+        think world.current_environment_for(self)
+        sleep 1
+      end
+    end
+  end
 
   def initialize
     super
@@ -44,21 +53,14 @@ class Robot < Actor
   end
 
   def think(env)
-    @mutex = Mutex.new
-    Thread.new do
-      begin
-        Timeout::timeout(10) do
-          response = brain.post(env.to_json)
-          valid_response = validate(response)
-          action = parse_action(valid_response)
-          @mutex.synchronize do
-            update(action)
-          end
-        end
-      rescue Timeout::Error
-        kill!
-      end
+    Timeout::timeout(10) do
+      response = brain.post(env.to_json)
+      valid_response = validate(response)
+      action = parse_action(valid_response)
+      world.mutex.synchronize { update(action) }
     end
+  rescue Timeout::Error
+    kill!
   end
 
   def decays

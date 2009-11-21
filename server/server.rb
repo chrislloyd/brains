@@ -21,7 +21,9 @@ db.flush_db
 # If you are running the server on your local machine, run your bot at
 #  localhost:4567
 unless production?
-  world.add(Robot.new_with_brain('http://localhost:4567', 'Hans'))
+  r = Robot.new_with_brain('http://localhost:4567', 'Hans')
+  world.add(r)
+  r.run
 else
   require 'browser'
   require 'heroes'
