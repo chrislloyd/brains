@@ -43,16 +43,14 @@ class Robot < Actor
   end
 
   def think(env)
-    begin
-      Timeout::timeout(1) do
-        response = brain.post(env.to_json)
-        valid_response = validate(response)
-        action = parse_action(valid_response)
-        update(action)
-      end
-    rescue Timeout::Error, StandardError
-      kill!
+    Timeout::timeout(1) do
+      response = brain.post(env.to_json)
+      valid_response = validate(response)
+      action = parse_action(valid_response)
+      update(action)
     end
+  rescue Timeout::Error, StandardError
+    kill!
   end
 
   def decays
