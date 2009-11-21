@@ -43,15 +43,20 @@ class Robot < Actor
   end
 
   def think(env)
-    begin
-      Timeout::timeout(2) do
-        response = brain.post(env.to_json)
-        valid_response = validate(response)
-        action = parse_action(valid_response)
-        update(action)
+    @mutex = Mutex.new
+    Thread.new do
+      begin
+        Timeout::timeout(10) do
+          response = brain.post(env.to_json)
+          valid_response = validate(response)
+          action = parse_action(valid_response)
+          @mutex.synchronize do
+            update(action)
+          end
+        end
+      rescue Timeout::Error, StandardError
+        kill!
       end
-    rescue Timeout::Error, StandardError
-      kill!
     end
   end
 
