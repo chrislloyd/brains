@@ -72,7 +72,7 @@ class Actor
   end
 
   def draw_health
-    label = "#{data['name']} (#{data['health']})"
+    label = "#{data['name'].gsub('.local', '')} (#{data['health']})"
 
     label_width = font.text_width(label)
     overlay_x = x - label_width /2

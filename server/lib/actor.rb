@@ -58,7 +58,7 @@ class Actor
   end
 
   def can_sense?(actor)
-    self != actor && in_cone?(actor, 360, 5)
+    self != actor && in_cone?(actor, 360, 10)
   end
 
   def can_attack?(victim)
