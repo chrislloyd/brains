@@ -39,6 +39,6 @@ class Heroes
   end
   
   def humans
-    world.actors.select {|a| a.is_a? Robot and a.health != -1 }
+    world.actors.select {|a| a.is_a? Robot and a.health != -1 and a.health != 0 }
   end
 end
