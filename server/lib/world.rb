@@ -70,7 +70,7 @@ class World
     when Zombie
       robots.reject {|h| h.dead?}
     else
-      actors.select {|a| actor.can_see?(a)}
+      actors.select {|a| actor.can_see?(a) || actor.can_sense?(a)}
     end
   end
 
