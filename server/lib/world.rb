@@ -114,7 +114,7 @@ class World
     number_of_new_zombies = Math.max((n_robots * MIN_ZOMBIES) + (Math.sin(clock.to_rad).abs * (MAX_ZOMBIES-MIN_ZOMBIES)).round - n_zombies, 0)
 
     number_of_new_zombies.times do |i|
-      add(rand(20) == 0 ? Tank.new : Zombie.new)
+      add(Zombie.new)
     end
   end
 
