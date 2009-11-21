@@ -12,7 +12,7 @@ def db
 end
 
 class ZIndex
-  LAYERS = [:world, :dead, :robot, :zombie, :overlay]
+  LAYERS = [:world, :dead, :robot, :zombie, :tank, :overlay]
 
   def self.for(type); LAYERS.index(type) end
 end
