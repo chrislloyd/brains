@@ -29,12 +29,14 @@ class Heroes
   end
 
   def clean_disconnected_hosts
-    self.clients = self.clients.select do |client|
-      known_hosts.include? client
-    end
+    self.clients = humans.collect {|h| h.name}
   end
 
   def known_hosts
     @browser.replies.map { |r| r.target }
+  end
+  
+  def humans
+    world.actors.select {|a| a.is_a? Robot }
   end
 end

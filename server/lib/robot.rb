@@ -19,7 +19,7 @@ class Robot < Actor
 
   SPAWN_BOX = 0.8 # %
 
-  attr_accessor :brain, :energy, :name
+  attr_accessor :brain, :energy, :name, :exception
 
   def self.place(width, height)
     x_variance = width * (SPAWN_BOX/2)
@@ -40,18 +40,24 @@ class Robot < Actor
   def initialize
     super
     self.energy = 100
+    self.score = 0
   end
 
   def think(env)
-    begin
-      Timeout::timeout(1) do
-        response = brain.post(env.to_json)
-        valid_response = validate(response)
-        action = parse_action(valid_response)
-        update(action)
+    @mutex = Mutex.new
+    Thread.new do
+      begin
+        Timeout::timeout(10) do
+          response = brain.post(env.to_json)
+          valid_response = validate(response)
+          action = parse_action(valid_response)
+          @mutex.synchronize do
+            update(action)
+          end
+        end
+      rescue Timeout::Error
+        kill!
       end
-    rescue Timeout::Error, StandardError
-      kill!
     end
   end
 
@@ -60,7 +66,9 @@ class Robot < Actor
   end
 
   def to_hash
-    super.merge({:name => name, :energy => energy})
+    returning(super.merge({:name => name, :energy => energy, :score => score})) do |h|
+      h[:exception] = exception if exception
+    end
   end
 
 # vars
@@ -111,7 +119,13 @@ class Robot < Actor
       work(:attack)
       attack
     end
-  rescue World::SteppingOnToesError, ExhaustedError
+  # rescue World::SteppingOnToesError => e, ExhausedError => e
+  #   self.exception = e.name
+  rescue World::SteppingOnToesError
+    self.exception = 'SteppingOnToesError'
+    rest
+  rescue ExhaustedError
+    self.exception = 'ExhaustedError'
     rest
   end
 

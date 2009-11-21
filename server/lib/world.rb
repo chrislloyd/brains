@@ -50,6 +50,8 @@ class World
   def try_to_place(actor, x, y)
     if actors.detect {|a| a != actor && a.x == x && a.y == y && !a.dead?}
       raise SteppingOnToesError
+    elsif !actor.is_a?(Zombie) && (x < 0 || y < 0 || x > width || y > height)
+      actor.hurt(20)
     else
       actor.x, actor.y = x, y
     end
@@ -60,9 +62,12 @@ class World
   end
 
   def attack_from(attacker)
+    damage = 0
     actors.select {|a| attacker.can_attack?(a)}.each do |victim|
       victim.hurt(attacker.damage)
+      damage += attacker.damage
     end
+    damage
   end
 
   def actors_visible_for(actor)
