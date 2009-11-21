@@ -51,9 +51,12 @@ class World
   end
   
   def delete(actor_name)
-    actor = actors.detect {|a| a.is_a? Robot and a.name == actor_name}
-    db.delete actor.id
-    actors.delete actor
+    actors.each do |actor|
+      if actor.is_a? Robot and actor.name == actor_name
+        db.delete actor.id
+        actors.delete actor
+      end
+    end
   end
 
   def place(actor)
