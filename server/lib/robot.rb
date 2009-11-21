@@ -54,12 +54,12 @@ class Robot < Actor
   end
 
   def think(env)
-    Timeout::timeout(10) do
-      response = brain.post(env.to_json)
-      valid_response = validate(response)
-      action = parse_action(valid_response)
-      world.mutex.synchronize { update(action) }
-    end
+    puts "#{name} Thinking"
+    response = brain.post(env.to_json)
+    puts "#{name} Got response #{response}"
+    valid_response = validate(response)
+    action = parse_action(valid_response)
+    world.mutex.synchronize { update(action) }
   rescue Timeout::Error
     logger.info("#{name} timed out")
     hurt(10)
@@ -74,6 +74,11 @@ class Robot < Actor
     returning(super.merge({:name => name, :energy => energy, :score => score})) do |h|
       h[:exception] = exception if exception
     end
+  end
+  
+  def kill!
+    super
+    heroes.remove name
   end
 
 # vars

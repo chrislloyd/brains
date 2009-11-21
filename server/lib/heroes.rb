@@ -30,7 +30,7 @@ class Heroes
     r.run
   end
 
-  def known_hosts
-    @browser.replies.map { |r| r.target }
+  def remove(host)
+    clients.delete host
   end
 end

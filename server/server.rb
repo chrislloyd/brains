@@ -3,6 +3,7 @@ $LOAD_PATH << 'lib'
 require 'brains'
 require 'redis'
 require 'logger'
+require 'heroes'
 
 def db; @db ||= Redis.new end
 
@@ -16,6 +17,10 @@ def logger; Logger.new(File.dirname(__FILE__) + "/../../brains.log"); end
 
 def production?; ENV['ENVIRONMENT'] == 'production' end
 
+def heroes
+  @heroes ||= Heroes.new
+end
+
 logger.info "Starting up"
 
 db.flush_db
@@ -28,8 +33,6 @@ unless production?
   r.run
 else
   require 'browser'
-  require 'heroes'
-  heroes = Heroes.new
   heroes.watch!
 end
 
