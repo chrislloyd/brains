@@ -12,7 +12,7 @@ class Robot < Actor
 
   EXPENSES = {
     :idle => 20,
-    :move => -20,
+    :move => -5,
     :turn => -30,
     :attack => -100
   }
@@ -83,7 +83,13 @@ class Robot < Actor
 
    def work(task)
      amount = EXPENSES[task]
-     (energy < -amount) ? raise(ExhaustedError) : self.energy += amount
+     (energy < -amount) ? raise(ExhaustedError) : add_energy(amount)
+   end
+   
+   def add_energy(amount)
+     if energy < 500
+       self.energy += amount
+     end
    end
 
   def validate(response)
