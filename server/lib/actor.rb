@@ -42,7 +42,8 @@ class Actor
   end
 
   def dir=(dir)
-    @dir = dir % 360
+    # TODO Investigate
+    @dir = (dir || 0) % 360
   end
 
   def hurt(amount)
