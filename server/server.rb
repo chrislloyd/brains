@@ -4,6 +4,7 @@ require 'brains'
 require 'redis'
 require 'logger'
 require 'heroes'
+require 'eventmachine'
 
 def db; @db ||= Redis.new end
 
@@ -25,29 +26,27 @@ logger.info "Starting up"
 
 db.flush_db
 
-# If you are running the server on your local machine, run your bot at
-#  localhost:4567
-unless production?
-  r = Robot.new_with_brain('http://localhost:4567', 'Hans')
-  world.add(r)
-  r.run
-else
+if production?
   require 'browser'
   heroes.watch!
 end
 
-loop do
-  old_time = Time.now
-  heroes.update! if production?
+EM.run do
+  # Running in local-server mode with a single robot...
+  if !production? && @robot.nil?
+    @robot = Robot.new('http://localhost:4567', 'Hans')
+    world.add(@robot)
+  end
+  
+  EM.add_periodic_timer(LOOP_TIME) do
+    heroes.update! if production?
+    
+    world.tick!
+    world.clean
 
-  world.tick!
-  world.clean
+    world.spawn
 
-  world.spawn
-
-  world.update
-  world.save
-
-  loop_time = Time.now - old_time
-  sleep LOOP_TIME - loop_time if loop_time < LOOP_TIME
+    world.update
+    world.save
+  end
 end

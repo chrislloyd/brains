@@ -9,7 +9,7 @@ class Robot < Actor
 
   VALID_ACTIONS = %w(idle move attack turn)
   MAX_LENGTH = 256
-  TIMEOUT = 100
+  TIMEOUT = 5
 
   EXPENSES = {
     :idle => 20,
@@ -20,7 +20,7 @@ class Robot < Actor
 
   SPAWN_BOX = 0.8 # %
 
-  attr_accessor :brain, :energy, :name, :exception
+  attr_accessor :url, :energy, :name, :exception
 
   def self.place(width, height)
     x_variance = width * (SPAWN_BOX/2)
@@ -30,45 +30,40 @@ class Robot < Actor
     [x, y]
   end
 
-  def self.new_with_brain(url, name)
-    returning(new) do |h|
-      h.brain = RestClient::Resource.new(url, :timeout => TIMEOUT, :open_timeout => TIMEOUT)
-      h.name = name
-      h.brain
-    end
-  end
-  
-  def run
-    @thread = Thread.new do
-      while true
-        think world.current_environment_for(self)
-        sleep 0.1
-      end
-    end
-  end
-
-  def stop!
-    puts "#{name}: killing thread" if  @thread && !@thread.stop?
-    @thread.kill if @thread && !@thread.stop?
-  end
-
-  def initialize
-    super
+  def initialize(url, name)
+    super()
+    self.url = url
+    self.name = name
     self.energy = 100
     self.score = 0
   end
 
   def think(env)
-    puts "#{name} Thinking"
-    response = brain.post(env.to_json)
-    puts "#{name} Got response #{response}"
-    valid_response = validate(response)
-    action = parse_action(valid_response)
-    world.mutex.synchronize { update(action) }
-  rescue Timeout::Error
-    logger.info("#{name} timed out")
-    hurt(10)
-    rest
+    uri = URI.parse(url)
+    request = EM::Protocols::HttpClient.request({
+      :verb => 'POST',
+      :host => uri.host,
+      :port => uri.port,
+      :request => "/",
+      :content => env.to_json
+    })
+
+    request.timeout(TIMEOUT)
+
+    request.callback do |response|
+      if r = validate(response)
+        action = parse_action(r[:content])
+        update(action)
+      else
+        request.fail
+      end
+    end
+
+    request.errback do
+      logger.info("#{name} timed out")
+      hurt(10)
+      rest
+    end
   end
 
   def decays
@@ -101,8 +96,8 @@ class Robot < Actor
    end
 
   def validate(response)
-    if response.code != 200 || response.length > MAX_LENGTH
-      raise RestClient::Exception
+    if response[:status] != 200 || response.length > MAX_LENGTH
+      false
     else
       response
     end

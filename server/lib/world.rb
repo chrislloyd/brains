@@ -54,7 +54,6 @@ class World
     actors.each do |actor|
       if actor.is_a? Robot and actor.name == actor_name
         db.delete actor.id
-        actor.stop!
         actors.delete actor
       end
     end
@@ -110,7 +109,7 @@ class World
       if a.dead?
         a.decays
       else
-        a.think(current_environment_for(a)) unless a.is_a? Robot
+        a.think(current_environment_for(a))
       end
     end
   end

@@ -25,10 +25,9 @@ class Heroes
   end
 
   def add_client(host)
-    r = Robot.new_with_brain("http://#{host}:4567", host)
+    r = Robot.new("http://#{host}:4567", host)
     world.add(r)
     self.clients << host
-    r.run
   end
   
   def delete_dead_clients
