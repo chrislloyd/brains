@@ -136,7 +136,6 @@ class World
 
   # TODO Refactor
   def pick_zombie
-    return Witch if !env.production?
     case rand(1000)
     when 0...50
       Witch
