@@ -11,7 +11,7 @@ def logger
   @logger ||= Logger.new(env.production? ? '../brains.log' : $stdout)
 end
 
-logger.info 'starting game in #{env}'
+logger.info "starting game in #{env}"
 
 def db
   @db ||= Redis.new

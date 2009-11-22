@@ -54,9 +54,13 @@ class Zombie < Actor
 
   def move_to(target)
     direction = direction_to(target)
-    if (direction - self.dir).abs < 5
-      x = Math.sin(direction)
-      y = Math.cos(direction)
+    if (direction - dir).abs < 5
+      dx = target.x - x
+      dy = target.y - y
+      x = Math.min(dx, speed)
+      y = Math.min(dy, speed)
+      # x = Math.sin(direction)
+      # y = Math.cos(direction)
       move(x, y)
     else
       turn direction
