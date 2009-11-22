@@ -115,7 +115,7 @@ class Actor
   def name
     @name ||= data['name'].sub(/\.local\.$/,'')
   end
-  
+
   def title
     "#{name.gsub('.local.', '')}: #{data['health']} - #{data['score']}"
   end
@@ -248,7 +248,7 @@ class Window < Gosu::Window
   def initialize
     super(800, 600, false)
 
-    self.news = Console.new(self,0,0,200,600)
+    self.news = Console.new(self,0,0,400,600)
 
     self.caption = 'Brains'
     self.grid = 1
