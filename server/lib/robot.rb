@@ -16,7 +16,7 @@ class Robot < Actor
 
   SPAWN_BOX = 0.8 # %
 
-  attr_accessor :uri, :energy, :name, :exception
+  attr_accessor :url, :uri, :energy, :name, :exception
   clean_writer :damage, :range, :eyesight
 
   damage {30 + rand(0,30)}
@@ -33,6 +33,7 @@ class Robot < Actor
 
   def initialize(url, name)
     super()
+    self.url = url
     self.uri = URI.parse(url)
     self.name = name
     self.energy = STARTING_ENERGY

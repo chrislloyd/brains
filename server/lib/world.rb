@@ -2,8 +2,8 @@ Thread.abort_on_exception = true
 
 class World
 
-  MIN_ZOMBIES = 20
-  MAX_ZOMBIES = 40
+  MIN_ZOMBIES = 10
+  MAX_ZOMBIES = 20
 
   PERIOD = 10000
   DECAY  = 500 # ticks
@@ -115,6 +115,8 @@ class World
   def delete_actor(actor)
     actors.delete(actor)
     db.delete(actor.id)
+
+    add(Robot.new(actor.url, actor.name)) if actor.is_a? Robot
   end
 
   def tick!
