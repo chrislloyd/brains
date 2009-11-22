@@ -36,6 +36,7 @@ class Zombie < Actor
 
   rescue World::SteppingOnToesError
     rest
+  rescue InvalidTransition
   end
 
 # private

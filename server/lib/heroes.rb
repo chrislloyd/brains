@@ -25,12 +25,16 @@ class Heroes
     self.clients << host
   end
 
+  def has_robot?(robot)
+    browser.replies.detect {|rep| rep.target == robot.name}
+  end
+
   def delete_dead_clients
-    world.humans.each do |human|
-      if human.dead? or !browser.replies.detect { |r| r.target == human.name }
-        self.clients.delete human.name
-        world.delete(human.name)
+    world.robots.
+      select {|r| !has_robot?(r) }.
+      each do |r|
+        world.delete(r)
+        self.clients.delete r.name
       end
-    end
   end
 end

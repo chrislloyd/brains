@@ -40,15 +40,6 @@ class World
     humans.select {|h| h.dead?}
   end
 
-  def delete(actor_name)
-    actors.each do |actor|
-      if actor.is_a? Robot and actor.name == actor_name
-        db.delete actor.id
-        actors.delete actor
-      end
-    end
-  end
-
   def place(actor)
     x, y = actor.class.place(width, height)
     try_to_place actor, x, y
@@ -105,18 +96,24 @@ class World
   def update
     actors.sort_by {rand}.each do |actor|
       if actor.dead?
-        delete_actor(actor)
+        if actor.is_a?(Robot)
+          respawn(actor)
+        else
+          delete(actor)
+        end
       else
         actor.think(current_environment_for(actor))
       end
     end
   end
 
-  def delete_actor(actor)
-    actors.delete(actor)
-    db.delete(actor.id)
+  def delete(actor)
+    actors.reject! {|a| a == actor && db.delete(actor.id)}
+  end
 
-    add(Robot.new(actor.url, actor.name)) if actor.is_a? Robot
+  def respawn(actor)
+    delete(actor)
+    add(Robot.new(actor.url, actor.name)) if heroes.has_robot?(actor)
   end
 
   def tick!
