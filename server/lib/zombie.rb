@@ -4,6 +4,12 @@ class Zombie < Actor
 
   attr_accessor :target
 
+  damage 5
+  range 20
+  eyesight 10
+  speed 1
+  initial_health 100
+
   def self.place(width, height)
     { :top => [rand(-1, width+1), height+1],
       :right => [width+1, rand(-1, height+1)],

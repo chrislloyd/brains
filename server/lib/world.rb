@@ -117,7 +117,7 @@ class World
     actors.delete(actor)
     db.delete(actor.id)
   end
-  
+
   def tick!
     self.clock += 1
     self.clock %= PERIOD
@@ -143,7 +143,7 @@ class World
     when 5...15
       Tank
     else
-      Norman
+      Zombie
     end
   end
 

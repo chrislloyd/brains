@@ -59,21 +59,27 @@ class Robot < Actor
     request.callback do |response|
       begin
         responded!
-        valid_response = validate(response[:content])
+
+
+        valid_response = validate(response)
+
+
+
         action = parse_action(valid_response)
+
+
+
         update(action)
       rescue ActionParseError
+        puts 'sad panda :('
+        kill!
       end
     end
 
     request.errback do
-      logger.info("#{name} timed out")
+      logger.info("#{name} error'd")
       kill!
     end
-  end
-
-  def decays
-    self.decay += 2
   end
 
   def to_hash
@@ -93,10 +99,10 @@ class Robot < Actor
    end
 
   def validate(response)
-    if response[:status] != 200 || response.length > MAX_LENGTH
+    if response[:status] != 200 || response[:content].length > MAX_LENGTH
       raise ActionParseError
     else
-      response
+      response[:content]
     end
   end
 
@@ -128,6 +134,7 @@ class Robot < Actor
   rescue World::SteppingOnToesError, OutOfEnergyError => e
     self.exception = e.message
     rest
+  rescue InvalidTransition
   end
 
 end

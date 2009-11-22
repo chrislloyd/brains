@@ -18,7 +18,7 @@ class Array
 end
 
 class ZIndex
-  LAYERS = [:world, :dead, :robot, :norman, :witch, :tank, :overlay]
+  LAYERS = [:world, :dead, :robot, :zombie, :witch, :tank, :overlay]
 
   def self.for(type); LAYERS.index(type) end
 end
