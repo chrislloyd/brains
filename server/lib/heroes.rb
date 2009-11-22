@@ -6,10 +6,6 @@ class Heroes
     self.browser = Browser.new '_http._tcp,_brains'
   end
 
-  def watch!
-    self.browser.watch!
-  end
-
   def update!
     add_clients
     delete_dead_clients

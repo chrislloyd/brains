@@ -20,44 +20,39 @@ class Browser
   def initialize(service)
     @service = service
     @mutex = Mutex.new
-    @replies = []
+    @replies = {}
+    watch!
   end
   
   def replies
-    @mutex.synchronize do
-      @replies.clone
-    end
+    @mutex.synchronize { @replies.values }
   end
-  
-  def watch!
-    Thread.new do
-      while true do
+
+  private
+    def watch!
+      Thread.new(@service, @mutex, @replies) do |service, mutex, replies|
         begin
-          DNSSD.browse!(@service) do |br|
-            begin
-              DNSSD.resolve!(br) do |rr|
-                begin
-                  @mutex.synchronize do
-                    rr_exists = Proc.new {|existing_rr| existing_rr.target == rr.target && existing_rr.fullname == rr.fullname}
-                    if (DNSSD::Flags::Add & br.flags.to_i) != 0
-                      @replies << rr unless @replies.any?(&rr_exists)
+          DNSSD.browse!(service) do |reply|
+            Thread.new(reply, replies, mutex) do |reply, replies, mutex|
+              begin
+                DNSSD.resolve!(reply.name, reply.type, reply.domain) do |resolve_reply|
+                  mutex.synchronize do
+                    if reply.flags.add?
+                      replies[reply.fullname] = resolve_reply
                     else
-                      @replies.delete_if(&rr_exists)
+                      replies.delete(reply.fullname)
                     end
                   end
-                ensure
-                  rr.service.stop unless rr.service.stopped?
+                  resolve_reply.service.stop unless resolve_reply.service.stopped?
                 end
+              rescue DNSSD::BadParamError
+                # Ignore em
               end
-            rescue DNSSD::BadParamError
-              $stderr.puts "Life sux."
             end
           end
-        rescue DNSSD::UnknownError
-          $stderr.puts "unknown error in DNSSD: '#{$!.message}'"
+        rescue DNSSD::BadParamError
+          # Ignore em
         end
-        sleep 5
       end
     end
-  end
 end

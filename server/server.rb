@@ -8,7 +8,6 @@ require 'boot'
 if env.production?
   require 'browser'
   logger.info 'watching bonjour'
-  heroes.watch!
 else
   world.add(Robot.new('http://localhost:4567', 'Hans'))
 end
