@@ -21,8 +21,7 @@ class World
     end
   end
 
-
-  def initialize(width = 200, height = 200)
+  def initialize(width = 800, height = 600)
     self.width, self.height = width, height
     self.clock = 0
     self.actors = []
@@ -137,6 +136,7 @@ class World
 
   # TODO Refactor
   def pick_zombie
+    return Witch if !env.production?
     case rand(1000)
     when 0...50
       Witch

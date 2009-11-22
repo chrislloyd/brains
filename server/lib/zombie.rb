@@ -22,12 +22,10 @@ class Zombie < Actor
   end
 
   def think(env)
-    if env[:visible].empty?
-      if target.is_a?(Robot) || x.near?(target.x, 40) || y.near?(target.y, 40)
-        self.target = world.pick_point
-      end
-    else
+    unless env[:visible].empty?
       self.target = env[:visible].sort_by {|r| distance_to(r)}.first
+    else
+      self.target = world.pick_point if needs_point?(env[:visible])
     end
 
     if target.is_a?(Robot) && can_attack?(target)
@@ -46,8 +44,8 @@ class Zombie < Actor
     actors.sort_by {|a| self.distance_to(a)}.first || world.pick_point
   end
 
-  def needs_target?
-    !target || (target.is_a?(Robot) && target.dead?) || (target.is_a?(World::Point) && x.near?(target.x, 40) && y.near?(target.y, 40))
+  def needs_point?(visible)
+    (target.is_a?(Robot) && visible.empty?) || (target.is_a?(World::Point) && distance_to(target) < 5)
   end
 
   def move_to(target)
