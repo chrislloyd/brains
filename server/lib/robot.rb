@@ -60,8 +60,7 @@ class Robot < Actor
 
     request.errback do
       logger.info("#{name} timed out")
-      hurt(10)
-      rest
+      kill!
     end
   end
 

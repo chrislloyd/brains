@@ -103,24 +103,24 @@ class World
     Point.random(width, height)
   end
 
-  def update_zombies
-    zombies.sort_by {rand}.each do |zombie|
-      if zombie.dead?
-        delete_actor(zombie)
+  def update
+    actors.sort_by {rand}.each do |actor|
+      if actor.dead?
+        delete_actor(actor)
       else
-        a.think(current_environment_for(a))
+        actor.think(current_environment_for(actor))
       end
     end
-  end
-
-  def tick!
-    self.clock += 1
-    self.clock %= PERIOD
   end
 
   def delete_actor(actor)
     actors.delete(actor)
     db.delete(actor.id)
+  end
+  
+  def tick!
+    self.clock += 1
+    self.clock %= PERIOD
   end
 
   # Adds zombies in waves

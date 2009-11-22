@@ -32,7 +32,3 @@ def heroes
   @heroes ||= Heroes.new
 end
 
-if env.production?
-  require 'browser'
-  heroes.watch!
-end
