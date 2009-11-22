@@ -9,7 +9,7 @@ class Robot < Actor
 
   VALID_ACTIONS = %w(idle move attack turn)
   MAX_LENGTH = 256
-  TIMEOUT = 5
+  TIMEOUT = 15
 
   STARTING_ENERGY = 3
   MAX_ENERGY = 6
@@ -38,7 +38,14 @@ class Robot < Actor
     self.energy = STARTING_ENERGY
   end
 
+  def awaiting_response?; @awaiting_response end
+  def awaiting_response!; @awaiting_response = true end
+  def responded!; @awaiting_response = false end
+
   def think(env)
+    return if awaiting_response?
+
+    awaiting_response!
     request = EM::Protocols::HttpClient.request({
       :verb => 'POST',
       :host => uri.host,
@@ -50,15 +57,18 @@ class Robot < Actor
     request.timeout(TIMEOUT)
 
     request.callback do |response|
-      if r = validate(response)
-        action = parse_action(r[:content])
+      begin
+        responded!
+        valid_response = validate(response[:content])
+        action = parse_action(valid_response)
         update(action)
-      else
-        request.fail
+      rescue ActionParseError
+        p ':( sad panda'
+        rest
       end
     end
 
-    request.errback do
+    request.errback do |e|
       logger.info("#{name} timed out")
       kill!
     end
@@ -86,7 +96,7 @@ class Robot < Actor
 
   def validate(response)
     if response[:status] != 200 || response.length > MAX_LENGTH
-      false
+      raise ActionParseError
     else
       response
     end
@@ -120,7 +130,6 @@ class Robot < Actor
   rescue World::SteppingOnToesError, OutOfEnergyError => e
     self.exception = e.message
     rest
-  rescue InvalidTransition
   end
 
 end

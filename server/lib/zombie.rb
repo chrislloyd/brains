@@ -20,16 +20,13 @@ class Zombie < Actor
   def think(env)
     dinner = env[:visible].find {|r| can_attack?(r)}
 
-    if rand(0,3) == 0
-      if dinner
-        attack
-      else
-        self.target = find_target(env[:visible]) if needs_target?
-        move_to(target)
-      end
+    if dinner
+      attack
     else
-      rest
+      self.target = find_target(env[:visible]) if needs_target?
+      move_to(target)
     end
+
   rescue World::SteppingOnToesError
     rest
   end
@@ -47,8 +44,8 @@ class Zombie < Actor
   def move_to(target)
     direction = direction_to(target)
     if (direction - dir).abs < 5
-      dx = Math.sin(direction)
-      dy = Math.cos(direction)
+      dx = Math.min(speed, distance_to(target)) * Math.sin(direction)
+      dy = Math.min(speed, distance_to(target)) * Math.cos(direction)
       move(dx,dy)
     else
       turn direction
