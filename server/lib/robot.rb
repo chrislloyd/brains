@@ -39,12 +39,18 @@ class Robot < Actor
   end
   
   def run
-    Thread.new do
+    @thread = Thread.new do
       while true
         think world.current_environment_for(self)
         sleep 0.1
       end
     end
+  end
+
+  def stop!
+    puts "killing thread" if  @thread && !@thread.stop?
+
+    @thread.kill if @thread && !@thread.stop?
   end
 
   def initialize

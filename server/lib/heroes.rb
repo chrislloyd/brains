@@ -35,7 +35,7 @@ class Heroes
     world.humans.each do |human|
       if human.dead? or !browser.replies.detect { |r| r.target == human.name }
         self.clients.delete human.name
-        world.delete human.name
+        world.delete(human.name).stop!
       end
     end
   end

@@ -55,6 +55,7 @@ class World
       if actor.is_a? Robot and actor.name == actor_name
         db.delete actor.id
         actors.delete actor
+        return actor
       end
     end
   end
