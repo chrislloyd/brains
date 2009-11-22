@@ -62,7 +62,7 @@ class Robot < Actor
         valid_response = validate(response)
         action = parse_action(valid_response)
         update(action)
-      rescue ActionParseError
+      rescue ActionParseError, JSON::ParserError
         kill!
       end
     end
