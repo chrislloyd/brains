@@ -23,7 +23,7 @@ class Zombie < Actor
 
   def think(env)
     if env[:visible].empty?
-      if target.is_a?(Robot) || (!target.is_a?(Robot) && x.near?(target.x, 20) && y.near?(target.y, 20))
+      if target.is_a?(Robot) || x.near?(target.x, 40) || y.near?(target.y, 40)
         self.target = world.pick_point
       end
     else
