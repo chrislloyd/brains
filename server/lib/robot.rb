@@ -74,7 +74,11 @@ class Robot < Actor
   end
 
   def to_hash
-    returning(super.merge({:name => name, :energy => energy, :score => score})) do |h|
+    returning(super.merge({
+      :name => name,
+      :energy => energy,
+      :score => score
+    })) do |h|
       h[:exception] = exception if exception
     end
   end
