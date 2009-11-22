@@ -1,12 +1,10 @@
 class Zombie < Actor
 
   clean_writer :damage, :range, :eyesight, :speed, :initial_health
-
   attr_accessor :target
 
   damage 5
   range 20
-  eyesight 10
   speed 1
   initial_health 100
 
@@ -24,12 +22,18 @@ class Zombie < Actor
   end
 
   def think(env)
-    dinner = env[:visible].find {|r| can_attack?(r)}
+    if env[:visible].empty?
+      if target.is_a?(Robot) || x.near?(target.x, 40) || y.near?(target.y, 40)
+        p target
+        self.target = world.pick_point
+      end
+    else
+      self.target = env[:visible].sort_by {|r| distance_to(r)}.first
+    end
 
-    if dinner
+    if target.is_a?(Robot) && can_attack?(target)
       attack
     else
-      self.target = find_target(env[:visible]) if needs_target?
       move_to(target)
     end
 

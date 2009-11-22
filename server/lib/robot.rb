@@ -59,19 +59,10 @@ class Robot < Actor
     request.callback do |response|
       begin
         responded!
-
-
         valid_response = validate(response)
-
-
-
         action = parse_action(valid_response)
-
-
-
         update(action)
       rescue ActionParseError
-        puts 'sad panda :('
         kill!
       end
     end

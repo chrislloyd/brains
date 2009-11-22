@@ -1,10 +1,6 @@
 class Tank < Zombie
-  def damage; 15 end
-  def range; 20 end
-  def eyesight; 10 end
-  
-  def initialize
-    super
-    self.health = 500
-  end
+  damage { 15 + (rand(3).zero? ? 60 : 0)}
+  range 20
+  speed 0.8
+  initial_health 600
 end
