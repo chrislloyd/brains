@@ -2,8 +2,6 @@ require 'gosu'
 require 'redis'
 require 'json'
 
-require 'pp'
-
 def returning(obj)
   yield obj
   obj
@@ -263,18 +261,16 @@ class Window < Gosu::Window
   end
 
   def update
-    unless $testing
-      keys = db.keys('*')
+    keys = db.keys('brains/actor/*')
 
-      keys.each do |id|
-        if raw = db[id]
-          actors[id] = Actor.update_from_string(actors[id],raw)
-          actors[id].tell_us_the_news
-        end
+    keys.each do |id|
+      if raw = db[id]
+        actors[id] = Actor.update_from_string(actors[id],raw)
+        actors[id].tell_us_the_news
       end
-
-      (actors.keys - keys).each {|key| actors.delete(key)}
     end
+
+    (actors.keys - keys).each {|key| actors.delete(key)}
   end
 
   def draw

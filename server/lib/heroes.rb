@@ -12,32 +12,29 @@ class Heroes
 
   def update!
     add_clients
-    clean_disconnected_hosts
+    delete_dead_clients
   end
 
   def add_clients
     browser.replies.each do |reply|
       host = reply.target
-      add_client(host) unless clients.include?(host)
+      unless self.clients.include?(host)
+        add_client(host)
+      end
     end
   end
 
   def add_client(host)
-    puts "Adding client #{host}"
-    r = Robot.new_with_brain("http://#{host}:4567", host)
-    world.add(r)
-    r.run
+    world.add(Robot.new("http://#{host}:4567", host))
+    self.clients << host
   end
 
-  def clean_disconnected_hosts
-    self.clients = humans.collect {|h| h.name}
-  end
-
-  def known_hosts
-    @browser.replies.map { |r| r.target }
-  end
-  
-  def humans
-    world.actors.select {|a| a.is_a? Robot and a.health != -1 and a.health != 0 }
+  def delete_dead_clients
+    world.humans.each do |human|
+      if human.dead? or !browser.replies.detect { |r| r.target == human.name }
+        self.clients.delete human.name
+        world.delete(human.name)
+      end
+    end
   end
 end

@@ -50,6 +50,10 @@ def flip_coin(sides=2)
   rand(1,sides)
 end
 
+def async_loop
+  Thread.new{ loop { yield }}
+end
+
 alias :roll_dice :flip_coin
 
 class StringInquirer < String

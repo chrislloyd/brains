@@ -19,22 +19,15 @@ module States
 
   attr_accessor :state
 
-  class InvalidTransition < RuntimeError
-    attr_accessor :from, :to
-    
-    def initialize(from, to)
-      self.from = from
-      self.to = to
-    end
-  end
+  class InvalidTransition < RuntimeError; end
 
   def any_state
     self.class.states
   end
 
   def changes(opts)
-    unless opts[:from].include?(self.state) || any_state.include?(opts[:to])
-      raise InvalidTransition(opts[:from], opts[:to])
+    unless self.state == opts[:to] || opts[:from].include?(self.state) || any_state.include?(opts[:to])
+      raise InvalidTransition
     end
     self.state = opts[:to]
   end

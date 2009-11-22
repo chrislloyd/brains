@@ -14,7 +14,7 @@ class Actor
   end
 
   def id
-    @id ||= UUID.new.generate
+    @id ||= ['brains/actor/', UUID.new.generate].join
   end
 
   def rest
@@ -82,7 +82,7 @@ class Actor
   end
 
   def distance(x,y)
-    Math.sqrt((x - self.x)**2 + (y-self.y)**2)
+    Math.hypot(x-self.x, y-self.y)
   end
 
   def distance_to(actor)
@@ -95,6 +95,21 @@ class Actor
 
   def in_cone?(obj, alpha, r)
     (direction_to(obj)-dir).abs < alpha && distance_to(obj) <= r
+  end
+
+  def self.clean_writer(*attrs)
+    attrs.each do |attr|
+      instance_eval <<-METHOD
+        def #{attr}(val=nil, &block)
+          if val || block_given?
+            @#{attr} = val || block
+          else
+            @#{attr}.is_a?(Proc) ? @#{attr}.call : @#{attr}
+          end
+        end
+      METHOD
+      define_method(attr) { self.class.send(attr) }
+    end
   end
 
 end

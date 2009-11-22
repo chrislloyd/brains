@@ -1,19 +1,11 @@
 class Zombie < Actor
 
-  def self.clean_writer(*attrs)
-    attrs.each do |attr|
-      instance_eval "def #{attr}(val=nil); val ? @#{attr} = val : @#{attr}; end"
-      define_method(attr) { self.class.send(attr) }
-    end
-  end
-
   clean_writer :damage, :range, :eyesight, :speed, :initial_health
 
   attr_accessor :target
 
   def self.place(width, height)
-    {
-      :top => [rand(-1, width+1), height+1],
+    { :top => [rand(-1, width+1), height+1],
       :right => [width+1, rand(-1, height+1)],
       :bottom => [rand(-1, width+1), -1],
       :left => [-1, rand(-1, height+1)]
@@ -55,23 +47,12 @@ class Zombie < Actor
   def move_to(target)
     direction = direction_to(target)
     if (direction - dir).abs < 5
-      dx = target.x - x
-      dy = target.y - y
-      x = Math.min(dx, speed)
-      y = Math.min(dy, speed)
-      # x = Math.sin(direction)
-      # y = Math.cos(direction)
-      move(x, y)
+      dx = Math.sin(direction)
+      dy = Math.cos(direction)
+      move(dx,dy)
     else
       turn direction
     end
-  end
-
-  def direction_to(actor)
-    dx = x - actor.x
-    dy = y - actor.y
-
-    (Math.atan2(dx, dy).to_deg + 180) % 360
   end
 
 end

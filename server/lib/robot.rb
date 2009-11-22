@@ -1,25 +1,27 @@
 require 'rest_client'
 require 'timeout'
+require 'benchmark'
 
 class Robot < Actor
 
-  class ExhaustedError < RuntimeError; end
+  class OutOfEnergyError < RuntimeError; end
   class ActionParseError < RuntimeError; end
 
   VALID_ACTIONS = %w(idle move attack turn)
   MAX_LENGTH = 256
-  TIMEOUT = 100
+  TIMEOUT = 5
 
-  EXPENSES = {
-    :idle => 20,
-    :move => -5,
-    :turn => -30,
-    :attack => -100
-  }
+  STARTING_ENERGY = 3
+  MAX_ENERGY = 6
 
   SPAWN_BOX = 0.8 # %
 
-  attr_accessor :brain, :energy, :name, :exception
+  attr_accessor :uri, :energy, :name, :exception
+  clean_writer :damage, :range, :eyesight
+
+  damage {30 + rand(0,30)}
+  range 200
+  eyesight 200
 
   def self.place(width, height)
     x_variance = width * (SPAWN_BOX/2)
@@ -29,40 +31,38 @@ class Robot < Actor
     [x, y]
   end
 
-  def self.new_with_brain(url, name)
-    returning(new) do |h|
-      h.brain = RestClient::Resource.new(url, :timeout => TIMEOUT, :open_timeout => TIMEOUT)
-      h.name = name
-      h.brain
-    end
-  end
-  
-  def run
-    Thread.new do
-      while true
-        think world.current_environment_for(self)
-        sleep 0.1
-      end
-    end
-  end
-
-  def initialize
-    super
-    self.energy = 100
-    self.score = 0
+  def initialize(url, name)
+    super()
+    self.uri = URI.parse(url)
+    self.name = name
+    self.energy = STARTING_ENERGY
   end
 
   def think(env)
-    Timeout::timeout(10) do
-      response = brain.post(env.to_json)
-      valid_response = validate(response)
-      action = parse_action(valid_response)
-      world.mutex.synchronize { update(action) }
+    request = EM::Protocols::HttpClient.request({
+      :verb => 'POST',
+      :host => uri.host,
+      :port => uri.port,
+      :request => "/",
+      :content => env.to_json
+    })
+
+    request.timeout(TIMEOUT)
+
+    request.callback do |response|
+      if r = validate(response)
+        action = parse_action(r[:content])
+        update(action)
+      else
+        request.fail
+      end
     end
-  rescue Timeout::Error
-    logger.info("#{name} timed out")
-    hurt(10)
-    rest
+
+    request.errback do
+      logger.info("#{name} timed out")
+      hurt(10)
+      rest
+    end
   end
 
   def decays
@@ -75,28 +75,19 @@ class Robot < Actor
     end
   end
 
-# vars
-
-  def damage; 30 + rand(0,30) end
-  def range; 200 end
-  def eyesight; 200 end
-
 # private
 
-   def work(task)
-     amount = EXPENSES[task]
-     (energy < -amount) ? raise(ExhaustedError) : add_energy(amount)
+   def work
+     (energy < 4) ? raise(OutOfEnergyError) : self.energy -= 4
    end
-   
-   def add_energy(amount)
-     if energy < 500
-       self.energy += amount
-     end
+
+   def restock
+     self.energy += 1 if energy < MAX_ENERGY
    end
 
   def validate(response)
-    if response.code != 200 || response.length > MAX_LENGTH
-      raise RestClient::Exception
+    if response[:status] != 200 || response.length > MAX_LENGTH
+      false
     else
       response
     end
@@ -117,26 +108,20 @@ class Robot < Actor
   def update(action)
     case action['action']
     when 'idle'
-      work(:idle)
+      restock
       rest
     when 'move'
-      work(:move)
       move(action['x'], action['y'])
     when 'turn'
-      work(:turn)
       turn(action['dir'])
     when 'attack'
-      work(:attack)
+      work
       attack
     end
-  # rescue World::SteppingOnToesError => e, ExhausedError => e
-  #   self.exception = e.name
-  rescue World::SteppingOnToesError
-    self.exception = 'SteppingOnToesError'
+  rescue World::SteppingOnToesError, OutOfEnergyError => e
+    self.exception = e.message
     rest
-  rescue ExhaustedError
-    self.exception = 'ExhaustedError'
-    rest
+  rescue InvalidTransition
   end
 
 end

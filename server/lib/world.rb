@@ -1,13 +1,15 @@
+Thread.abort_on_exception = true
+
 class World
 
   MIN_ZOMBIES = 10
-  MAX_ZOMBIES = 30
+  MAX_ZOMBIES = 10
 
   PERIOD = 10000
   DECAY  = 500 # ticks
 
-  attr_accessor :width, :height, :actors, :clock
-  attr_writer :zombies, :robots
+  attr_accessor :width, :height, :clock, :lock
+  attr_accessor :actors
 
   class SteppingOnToesError < RuntimeError; end
 
@@ -22,24 +24,30 @@ class World
 
   def initialize(width = 200, height = 200)
     self.width, self.height = width, height
-    self.actors, self.clock = [], 0
-  end
-
-  def mutex
-    @mutex ||= Mutex.new
-  end
-
-  def zombies
-    actors.select {|a| a.is_a?(Zombie)}
-  end
-
-  def robots
-    actors.select {|a| a.is_a?(Robot)}
+    self.clock = 0
+    self.actors = []
   end
 
   def add(actor)
     actors << actor
     place(actor)
+  end
+
+  def humans
+    actors.select { |a| a.is_a? Robot }
+  end
+
+  def dead_humans
+    humans.select {|h| h.dead?}
+  end
+
+  def delete(actor_name)
+    actors.each do |actor|
+      if actor.is_a? Robot and actor.name == actor_name
+        db.delete actor.id
+        actors.delete actor
+      end
+    end
   end
 
   def place(actor)
@@ -49,6 +57,14 @@ class World
   rescue SteppingOnToesError
     # TODO Only do this a certain number of times
     retry
+  end
+
+  def robots
+    actors.select {|a| a.is_a? Robot }
+  end
+
+  def zombies
+    actors.select {|a| a.is_a? Zombie }
   end
 
   def try_to_place(actor, x, y)
@@ -87,12 +103,12 @@ class World
     Point.random(width, height)
   end
 
-  def update
-    actors.sort_by {rand}.each do |a|
-      if a.dead?
-        a.decays
+  def update_zombies
+    zombies.sort_by {rand}.each do |zombie|
+      if zombie.dead?
+        delete_actor(zombie)
       else
-        a.think(current_environment_for(a)) unless a.is_a? Robot
+        a.think(current_environment_for(a))
       end
     end
   end
@@ -102,8 +118,9 @@ class World
     self.clock %= PERIOD
   end
 
-  def clean
-    actors.reject! {|a| a.decay > DECAY && db.delete(a.id) }
+  def delete_actor(actor)
+    actors.delete(actor)
+    db.delete(actor.id)
   end
 
   # Adds zombies in waves
@@ -114,10 +131,11 @@ class World
     number_of_new_zombies = Math.max((n_robots * MIN_ZOMBIES) + (Math.sin(clock.to_rad).abs * (MAX_ZOMBIES-MIN_ZOMBIES)).round - n_zombies, 0)
 
     number_of_new_zombies.times do |i|
-      add(pick_zombie.new)
+      add pick_zombie.new
     end
   end
 
+  # TODO Refactor
   def pick_zombie
     case rand(100)
     when 0...5
