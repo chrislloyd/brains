@@ -82,7 +82,7 @@ class Robot < Actor
 # private
 
    def work
-     (energy <= MAX_ENERGY) ? raise(OutOfEnergyError) : self.energy -= 1
+     (energy < 1) ? raise(OutOfEnergyError) : self.energy -= 1
    end
 
    def restock

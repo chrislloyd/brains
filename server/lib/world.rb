@@ -138,9 +138,9 @@ class World
   # TODO Refactor
   def pick_zombie
     case rand(100)
-    when 0...5
+    when 0...3
       Witch
-    when 5...15
+    when 3...7
       Tank
     else
       Zombie
