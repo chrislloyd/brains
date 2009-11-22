@@ -48,8 +48,7 @@ class Robot < Actor
   end
 
   def stop!
-    puts "killing thread" if  @thread && !@thread.stop?
-
+    puts "#{name}: killing thread" if  @thread && !@thread.stop?
     @thread.kill if @thread && !@thread.stop?
   end
 

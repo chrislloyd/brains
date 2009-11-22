@@ -54,8 +54,8 @@ class World
     actors.each do |actor|
       if actor.is_a? Robot and actor.name == actor_name
         db.delete actor.id
+        actor.stop!
         actors.delete actor
-        return actor
       end
     end
   end
