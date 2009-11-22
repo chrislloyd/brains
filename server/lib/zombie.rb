@@ -9,11 +9,7 @@ class Zombie < Actor
   initial_health 100
 
   def self.place(width, height)
-    { :top => [rand(-1, width+1), height+1],
-      :right => [width+1, rand(-1, height+1)],
-      :bottom => [rand(-1, width+1), -1],
-      :left => [-1, rand(-1, height+1)]
-    }.pick
+    [rand(-1, width+1), rand(-1, height+1)]
   end
 
   def initialize
