@@ -83,11 +83,11 @@ class Actor
   end
 
   def distance_to(actor)
-    distance(actor.x, actor.y)
+    distance(actor.x, actor.y) rescue 0
   end
 
   def direction_to(actor)
-    (Math.atan2(x - actor.x, y - actor.y).to_deg + 180) % 360
+    (Math.atan2(x - actor.x, y - actor.y).to_deg + 180) % 360 rescue 0
   end
 
   def in_cone?(obj, alpha, r)
