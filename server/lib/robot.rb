@@ -63,12 +63,10 @@ class Robot < Actor
         action = parse_action(valid_response)
         update(action)
       rescue ActionParseError
-        p ':( sad panda'
-        rest
       end
     end
 
-    request.errback do |e|
+    request.errback do
       logger.info("#{name} timed out")
       kill!
     end
