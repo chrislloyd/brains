@@ -113,11 +113,15 @@ class Actor
   end
 
   def name
-    @name ||= data['name'].sub(/\.local$/,'')
+    @name ||= data['name'].sub(/\.local\.$/,'')
+  end
+  
+  def title
+    "#{name.gsub('.local.', '')}: #{data['health']} - #{data['score']}"
   end
 
   def draw_health
-    label = "#{name} (#{data['health']})"
+    label = title
 
     label_width = font.text_width(label)
     overlay_x = x - label_width / 2
@@ -315,12 +319,6 @@ class Window < Gosu::Window
 
   def humans
     actors.select {|a| a.robot? }
-  end
-
-  def draw_scores
-    humans.select { |h| !h.dead? }.sort_by {|h| h.score}.reverse.each_with_index do |human, i|
-      font.draw("#{human.name}: #{human.score}", 0, i*20, ZIndex.for(:overlay), 1.0, 1.0, 0xFF000000)
-    end
   end
 
 end
