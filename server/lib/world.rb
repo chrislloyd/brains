@@ -2,8 +2,8 @@ Thread.abort_on_exception = true
 
 class World
 
-  MIN_ZOMBIES = 10
-  MAX_ZOMBIES = 10
+  MIN_ZOMBIES = 20
+  MAX_ZOMBIES = 40
 
   PERIOD = 10000
   DECAY  = 500 # ticks
