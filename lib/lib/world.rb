@@ -74,13 +74,8 @@ class World
   def attack_from(attacker)
     damage = 0
     actors.select {|a| attacker.can_attack?(a)}.each do |victim|
-      if attacker.is_a?(Robot) && victim.is_a?(Robot)
-        attacker.hurt(attacker.damage)
-        damage -= attacker.damage
-      else
-        victim.hurt(attacker.damage)
-        damage += attacker.damage
-      end
+      victim.hurt(attacker.damage)
+      damage += attacker.damage
     end
     damage
   end
