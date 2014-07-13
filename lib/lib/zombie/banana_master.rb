@@ -1,4 +1,0 @@
-class BananaMaster < Zombie
-
-
-end

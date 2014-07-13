@@ -4,23 +4,24 @@ A competitive game framework for robots.
 
 **Please be advised:** We believe in documentation driven development. READMEs and blog posts first. This is a work in progress.
 
+
 ## How it works
 
-Here be some rough psuedo-code
+Here be some rough rules:
 
-1. A level is loaded and the players are selected.
-2. The level starts
-3. Each "tick" the players are processed randomly.
-4. Processing involves: sending the current environment to the process and recieving an action back.
-4. Points are scored by completing actions.
-5. The game ends when somebody scores X points, or Y ticks have elapsed.
-6. The game is then ready for playback.
+1. A level is loaded and the players are selected, their order is randomized.
+2. The level starts and runs at 60fps.
+3. Robots are sent a request (with the Tick & State) and return Actions.
+4. The Round ends when the game says it has or 5 minutes (18k Ticks) have elapsed.
+5. The Winners (0..n) are recorded.
+
 
 ## Goals
 
 * Easy to play
 * Competitive
 * Customizable
+
 
 ## Glossary
 
@@ -50,3 +51,60 @@ Things like actions the robots can take, the world size and sprites should be gl
 
 ### Communication needs to be baked in
 With Brains 1, lots of people ended up writing databases to help their robots communicate. That's fine, but I'd love to make an official channel for that communication so spectators can see it but so robots that don't know each other can work together.
+
+
+## World
+
+The game board is 640x480. The coordinate system starts at 0, and (0,0) is in the top left.
+
+The list of available sprites is global and set by Brains (though open to additions). The art used for the sprites themselves can be determined by the renderer.
+
+
+## Replay Data Format
+
+Write ahead log of gameplay state. Each entry has an associated timestamp.
+
+```
+START  game_url round_id [{<url> <label>}, ...]
+DRAW   sprite_id x y
+UPDATE "bot1" {env} ["actions", ...]
+WARN   <msg>
+TICK
+...
+END    [<winner_id>, ...]
+```
+
+If this format is written to the filesystem, please use the the extension `.brainplay`.
+
+
+## Request Protocol
+
+POST <url> tick=123 state="{}"
+
+*TODO* Think about wether `state` should be a bit more formally defined.
+
+
+## Action Protocol
+
+```
+SAY   msg
+UP
+DOWN
+LEFT
+RIGHT
+LOOK  x,y
+A
+B
+```
+
+Commands are "\n" separated. Robots can send multiple commands each tick. An example response where the player turns to face an enemy and "shoots":
+
+```
+CUR 27,32
+A
+```
+
+* SAY: Communicate with the game. Like using a headset.
+* UP/DOWN/LEFT/RIGHT: Move a bot like a d-pad.
+* LOOK: Change orientation or cursor like a mouse or thumbstick
+* A/B: Primary and secondary actions.
