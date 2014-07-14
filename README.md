@@ -66,13 +66,16 @@ Write ahead log of gameplay state. Each entry has an associated timestamp.
 
 ```
 START  game_url round_id [{<url> <label>}, ...]
+TICK   0
 DRAW   sprite_id x y
 UPDATE "bot1" {env} ["actions", ...]
-WARN   <msg>
-TICK
+...
+TICK   1
 ...
 END    [<winner_id>, ...]
 ```
+
+*Note:* I'm sure this isn't perfect. I'm trying to do my best to emulate the update/draw/flush framebuffer cycle of traditional games. One thing I could consider is adding a z-index to the `DRAW` cmd. That would let games show things like projectiles etc.
 
 If this format is written to the filesystem, please use the the extension `.brainplay`.
 
