@@ -1,18 +1,17 @@
 #!/usr/bin/env ruby
 require 'RMagick'
+require 'json'
 
-WIDTH = 640
-HEIGHT = 480
+WIDTH = 240
+HEIGHT = 135
 
-canvas = Magick::ImageList.new
-
-
-sprite_library = {
+Sprites = {
   'red_robot' => ->(x,y) {
     rect = Magick::Draw.new
     rect.stroke('black').stroke_width(1)
     rect.fill('#F00')
     rect.rectangle(x, y,  x+1,y+1)
+    rect
   },
 
   'blue_robot' => ->(x,y) {
@@ -20,20 +19,22 @@ sprite_library = {
     rect.stroke('black').stroke_width(1)
     rect.fill('#00F')
     rect.rectangle(x, y,  x+1,y+1)
+    rect
   }
 }
 
+canvas = Magick::ImageList.new
+canvas.ticks_per_second = 1
+
 STDIN.readlines.each do |line|
-  cmd = line.split(' ')
-  case cmd[0]
-  when 'DRAW'
-    sprite = sprite_library.fetch(cmd[1]).call(cmd[2].to_i, cmd[3].to_i)
-    sprite.draw(canvas)
-  when 'FRAME'
-    if canvas.any?
-      canvas.append(canvas.cur_image.dup)
-    else
-      canvas.new_image(WIDTH, HEIGHT) { self.background_color = 'white' }
+  cmd, args = line.strip.split(' ', 2)
+  case cmd
+  when 'TICK'
+    canvas.new_image(WIDTH*2, HEIGHT*2)
+
+    JSON.parse(args).each do |entity|
+      sprite = Sprites.fetch(entity[0]).call(entity[1], entity[2])
+      sprite.draw(canvas)
     end
   end
 end

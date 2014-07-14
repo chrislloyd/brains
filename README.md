@@ -55,7 +55,7 @@ With Brains 1, lots of people ended up writing databases to help their robots co
 
 ## World
 
-The game board is 640x480. The coordinate system starts at 0, and (0,0) is in the top left.
+The game board is 240x135. The coordinate system starts at 0, and (0,0) is in the top left. If each tile is 16px (standard icon size) then the game will generate a (consumer) 4k frame.
 
 The list of available sprites is global and set by Brains (though open to additions). The art used for the sprites themselves can be determined by the renderer.
 
@@ -64,15 +64,20 @@ The list of available sprites is global and set by Brains (though open to additi
 
 Write ahead log of gameplay state. Each entry has an associated timestamp.
 
+A property of this format is that all state associated with the game should be captured in here. If, for instance, the game process dies a new process should be able to pick up from where the other left it with the full state of the game.
+
 ```
-START  game_url round_id [{<url> <label>}, ...]
-TICK   0
+START  id url
+JOIN   id url
+TICK   {state}
 DRAW   sprite_id x y
-UPDATE "bot1" {env} ["actions", ...]
+UPDATE bot1 {state}
+ACTION bot1 up
+DRAW   ...
+TICK
 ...
-TICK   1
-...
-END    [<winner_id>, ...]
+WIN    bot1 score
+END
 ```
 
 *Note:* I'm sure this isn't perfect. I'm trying to do my best to emulate the update/draw/flush framebuffer cycle of traditional games. One thing I could consider is adding a z-index to the `DRAW` cmd. That would let games show things like projectiles etc.

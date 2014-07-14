@@ -5,90 +5,89 @@ require 'time'
 
 TPS = 1
 MAX_TICKS = TPS * 10 # 10s
-WIDTH = 640
-HEIGHT = 480
+WIDTH = 240
+HEIGHT = 135
 
-def pick_game
-  'localhost:6666'
+class Actor < Struct.new(:id, :url)
 end
 
-def log(cmd, args=[])
-  puts [cmd.to_s.upcase, *args].join(' ')
-end
+class Game < Actor
+  attr_accessor :robots
+  def start(robots)  # POST /
+    @robots = robots
+    @pos = {
+      'robot_a' => {x: 10, y: 10},
+      'robot_b' => {x: 40, y: 40}
+    }
+  end
 
-# --
-
-def join!(id, url)
-  log(:join, [id, url])
-  {id: id, url: url}
-end
-
-def start!(game_url, round_id, robots)
-  draw_calls = # send_start_game_to_game(url, [id, robots])
+  def state # GET /state
     [
-      [:red_robot, rand(WIDTH), rand(HEIGHT)],
-      [:blue_robot, rand(WIDTH), rand(HEIGHT)]
+      ['red_robot', @pos['robot_a'][:x], @pos['robot_a'][:y]],
+      ['blue_robot', @pos['robot_b'][:x], @pos['robot_b'][:y]]
     ]
+  end
 
-  log(:start, [game_url, round_id])
+  def localstate(robot) # GET /:robot
+    {}
+  end
 
-  draw_calls
-end
-
-def flush_draw_actions!(draw_actions)
-  draw_actions.each do |draw_call|
-    log(:draw, draw_call)
+  def process_action(robot, action) # PATCH /
+    case action[0]
+    when :right
+      @pos[robot.id][:x] += 1
+    when :down
+      @pos[robot.id][:y] += 1
+    when :up
+      @pos[robot.id][:y] -= 1
+    when :left
+      @pos[robot.id][:x] -= 1
+    end
   end
 end
 
-def frame!(tick)
-  log(:frame, [tick])
+class Robot < Actor
+  def think(game, frame, state)
+    [[:down], [:right]]
+  end
 end
 
-def update!(robot, tick)
-  robot_state = {} # fetch_robot_state(game, robot[:id])
-  actions = [[:say, 'Hello World']] # call_robot(robot[:url], tick, robot_state)
-  log(:update, [robot[:id], robot_state.to_json, actions.to_json])
-
-  actions
+class Salmon < Robot
+  def think(game, frame, state)
+    [[:up], [:left]]
+  end
 end
 
 # --
 
-def main
-  # Arguments
-  game = pick_game
-  round_id = SecureRandom.uuid
-
-  # Initialize robots
-  robots = []
-  robots << join!('robot_a', 'https://localhost:5001')
-  robots << join!('robot_b', 'https://localhost:5002')
-
-  # Tell game to start robots
-  # draw_actions = []
-  draw_actions = start!(game, round_id, robots)
-
-  tick = 0
-  playing = true
-
-
-  while playing && tick < MAX_TICKS
-    frame!(tick)
-
-    robots.each_with_object([]) do |robot, action_pipeline|
-      actions = update!(robot, tick)
-      action_pipeline << [robot, actions]
-    end
-
-    # perform_actions!(game, action_pipeline)
-    flush_draw_actions!(draw_actions)
-    draw_actions = []
-
-    tick += 1
-  end
-
-
+def save(action, *args)
+  puts [action.to_s.upcase, *args].join(' ')
 end
 
-main()
+# --
+
+# Initialize
+game = Game.new('game_id', 'localhost:6666')
+a = Robot.new('robot_a', 'https://localhost:5001')
+b = Salmon.new('robot_b', 'https://localhost:5002')
+
+game.start([a, b])
+save :start, game.id, game.url, *game.robots.map {|r| [r.id, r.url] }.flatten
+
+tick = 0
+playing = true
+save :tick, game.state.to_json
+
+while playing && tick < MAX_TICKS
+  game.robots.each do |robot|
+    actions = robot.think(game.id, tick, game.localstate(robot))
+    actions.each do |action|
+      game.process_action(robot, action)
+    end
+  end
+
+  tick += 1
+  save :tick, game.state.to_json
+end
+
+save :end, game.robots.sample.id
